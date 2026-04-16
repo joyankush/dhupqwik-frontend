@@ -2,7 +2,7 @@
 //  admin-utils.js — Shared utilities for all admin pages
 // ============================================================
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = "https://dhupqwik-backend.onrender.com";
 
 // ── Get stored admin token ────────────────────────────────
 function getToken() {
