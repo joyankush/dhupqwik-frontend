@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — DhupQwik</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg);
+      /* Subtle grid pattern */
+      background-image:
+        linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 380px;
+      padding: 24px;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-brand-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--amber);
+      letter-spacing: -1px;
+    }
+    .login-brand-name span { color: var(--text); }
+    .login-brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .login-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--amber);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--trans);
+      margin-top: 4px;
+    }
+    .login-btn:hover { background: var(--amber-lt); transform: translateY(-1px); }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: rgba(248,81,73,0.1);
+      border: 1px solid rgba(248,81,73,0.3);
+      color: var(--red);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .credentials-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-brand">
+    <div class="login-brand-name">Dhup<span>Qwik</span></div>
+    <div class="login-brand-sub">Admin Panel</div>
+  </div>
+
+  <div class="login-card">
+    <h2>Welcome back</h2>
+    <p>Sign in to manage your store.</p>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input
+        type="text"
+        class="form-input"
+        id="username"
+        placeholder="admin"
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input
+        type="password"
+        class="form-input"
+        id="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
+    </div>
+
+    <button class="login-btn" id="login-btn" onclick="doLogin()">
+      Sign In →
+    </button>
+
+    <hr class="divider"/>
+    <div class="credentials-hint">
+      Set in your backend <code>.env</code> file<br/>
+      ADMIN_USERNAME / ADMIN_PASSWORD
+    </div>
+  </div>
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  // If already logged in, go straight to dashboard
+  if (getToken()) {
+    window.location.href = 'admin-dashboard.html';
+  }
+
+  // Allow pressing Enter in password field
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl  = document.getElementById('error-msg');
+    const btn      = document.getElementById('login-btn');
+
+    if (!username || !password) {
+      showError('Please enter both username and password.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    errorEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (data.token) {
+        setToken(data.token);
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        showError(data.message || 'Invalid username or password.');
+        btn.disabled = false;
+        btn.textContent = 'Sign In →';
+      }
+    } catch {
+      showError('Cannot connect to server. Make sure the backend is running on port 5000.');
+      btn.disabled = false;
+      btn.textContent = 'Sign In →';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>

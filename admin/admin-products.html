@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products — DhupQwik Admin</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+  <style>
+    .products-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .products-layout { grid-template-columns: 1fr; }
+    }
+    .add-form { position: sticky; top: 76px; }
+
+    /* Size checkboxes */
+    .sizes-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .size-check {
+      display: none;
+    }
+    .size-check-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: var(--trans);
+    }
+    .size-check:checked + .size-check-label {
+      background: var(--amber-glow);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+    .size-check-label:hover { border-color: var(--amber); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Dhup<span>Qwik</span></div>
+      <div class="sidebar-badge">ADMIN PANEL</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
+        <span class="nav-icon">👕</span> Products
+      </a>
+      <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
+        <span class="nav-icon">📦</span> Orders
+      </a>
+      <a href="../frontend/index.html" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> View Store ↗
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar">👤</div>
+        <div>
+          <div class="admin-name">Admin</div>
+          <div class="admin-role">Store Manager</div>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══════════════════════════════════════ -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Products</div>
+      <div class="topbar-right">
+        <span id="topbar-time" class="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="products-layout">
+
+        <!-- ── LEFT: Add Product Form ─────────────────────── -->
+        <div class="add-form">
+          <div class="panel">
+            <div class="panel-title">➕ Add New Product</div>
+
+            <div class="form-group">
+              <label class="form-label">Product Name *</label>
+              <input type="text" class="form-input" id="prod-name"
+                placeholder="e.g. Cotton Kurta"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Price (₹) *</label>
+              <input type="number" class="form-input" id="prod-price"
+                placeholder="e.g. 599" min="0"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description *</label>
+              <textarea class="form-input" id="prod-desc"
+                placeholder="Describe the product, material, style..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" class="form-input" id="prod-stock"
+                placeholder="e.g. 20" min="0"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Available Sizes</label>
+              <div class="sizes-row">
+                <!-- Each size is a hidden checkbox + visible label -->
+                <input type="checkbox" class="size-check" id="sz-xs" value="XS"/>
+                <label class="size-check-label" for="sz-xs">XS</label>
+
+                <input type="checkbox" class="size-check" id="sz-s" value="S" checked/>
+                <label class="size-check-label" for="sz-s">S</label>
+
+                <input type="checkbox" class="size-check" id="sz-m" value="M" checked/>
+                <label class="size-check-label" for="sz-m">M</label>
+
+                <input type="checkbox" class="size-check" id="sz-l" value="L" checked/>
+                <label class="size-check-label" for="sz-l">L</label>
+
+                <input type="checkbox" class="size-check" id="sz-xl" value="XL" checked/>
+                <label class="size-check-label" for="sz-xl">XL</label>
+
+                <input type="checkbox" class="size-check" id="sz-xxl" value="XXL"/>
+                <label class="size-check-label" for="sz-xxl">XXL</label>
+
+                <input type="checkbox" class="size-check" id="sz-free" value="Free Size"/>
+                <label class="size-check-label" for="sz-free" style="width:auto; padding:0 10px;">Free</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Product Image *</label>
+              <div class="upload-area" id="upload-area">
+                <input type="file" id="prod-image" accept="image/*"
+                  onchange="previewImage(this)"/>
+                <div id="upload-placeholder">
+                  <div class="upload-icon">📷</div>
+                  <div class="upload-text">
+                    <strong>Click to upload</strong> or drag & drop<br/>
+                    JPG, PNG, WEBP up to 5MB
+                  </div>
+                </div>
+                <img id="image-preview" class="upload-preview" style="display:none;" alt="preview"/>
+              </div>
+            </div>
+
+            <button class="btn btn-amber btn-full" id="add-product-btn"
+              onclick="addProduct()">
+              Add Product
+            </button>
+          </div>
+        </div>
+
+        <!-- ── RIGHT: Products Table ──────────────────────── -->
+        <div>
+          <div class="section-head">
+            <h2>All Products <span id="product-count"
+              style="font-size:13px; color:var(--text-muted); font-family:'IBM Plex Sans',sans-serif; font-weight:400;"></span>
+            </h2>
+            <button class="btn btn-ghost btn-sm" onclick="loadProducts()">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <div id="prod-loading"><div class="spinner"></div></div>
+            <table class="data-table" id="prod-table" style="display:none;">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Sizes</th>
+                  <th>Added</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-body"></tbody>
+            </table>
+            <div class="table-empty" id="prod-empty" style="display:none;">
+              <div class="table-empty-icon">👕</div>
+              <div>No products yet. Add your first product!</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  requireAuth();
+
+  // ── Preview selected image ────────────────────────────────
+  function previewImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('image-preview').src = e.target.result;
+      document.getElementById('image-preview').style.display = 'block';
+      document.getElementById('upload-placeholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── Get selected sizes ────────────────────────────────────
+  function getSelectedSizes() {
+    return Array.from(
+      document.querySelectorAll('.size-check:checked')
+    ).map(cb => cb.value);
+  }
+
+  // ── Add product ───────────────────────────────────────────
+  async function addProduct() {
+    const name  = document.getElementById('prod-name').value.trim();
+    const price = document.getElementById('prod-price').value.trim();
+    const desc  = document.getElementById('prod-desc').value.trim();
+    const stock = document.getElementById('prod-stock').value.trim();
+    const sizes = getSelectedSizes();
+    const imageFile = document.getElementById('prod-image').files[0];
+
+    // Validate
+    if (!name)  { showToast('Product name is required', 'error'); return; }
+    if (!price) { showToast('Price is required', 'error'); return; }
+    if (!desc)  { showToast('Description is required', 'error'); return; }
+    if (!imageFile) { showToast('Please select a product image', 'error'); return; }
+    if (sizes.length === 0) { showToast('Select at least one size', 'error'); return; }
+
+    const btn = document.getElementById('add-product-btn');
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+
+    // Use FormData because we're uploading a file
+    // FormData is like a form that can carry both text AND files
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    formData.append('description', desc);
+    formData.append('stock', stock || '0');
+    formData.append('sizes', JSON.stringify(sizes));
+    formData.append('image', imageFile); // attach the image file
+
+    try {
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: authHeadersMultipart(), // no Content-Type — browser sets it for FormData
+        body: formData
+      });
+      const data = await res.json();
+
+      if (res.ok && data.product) {
+        showToast(`"${data.product.name}" added successfully!`, 'success');
+        resetForm();
+        loadProducts();
+      } else {
+        showToast(data.message || 'Failed to add product', 'error');
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Add Product';
+    }
+  }
+
+  // ── Reset form after adding ───────────────────────────────
+  function resetForm() {
+    document.getElementById('prod-name').value = '';
+    document.getElementById('prod-price').value = '';
+    document.getElementById('prod-desc').value = '';
+    document.getElementById('prod-stock').value = '';
+    document.getElementById('prod-image').value = '';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('upload-placeholder').style.display = 'block';
+  }
+
+  // ── Load all products ─────────────────────────────────────
+  async function loadProducts() {
+    document.getElementById('prod-loading').style.display = 'block';
+    document.getElementById('prod-table').style.display = 'none';
+    document.getElementById('prod-empty').style.display = 'none';
+
+    try {
+      const res = await fetch(`${API_BASE}/products`);
+      const data = await res.json();
+      const products = Array.isArray(data) ? data : (data.products || []);
+
+      document.getElementById('prod-loading').style.display = 'none';
+      document.getElementById('product-count').textContent =
+        `(${products.length})`;
+
+      if (products.length === 0) {
+        document.getElementById('prod-empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('prod-table').style.display = 'table';
+      document.getElementById('products-body').innerHTML = products.map(p => {
+        const imgUrl = getImageUrl(p.image);
+        const thumb = imgUrl
+          ? `<img class="product-thumb" src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none'">`
+          : `<div class="product-thumb-placeholder">👕</div>`;
+
+        return `
+          <tr>
+            <td>${thumb}</td>
+            <td>
+              <div style="font-weight:600;">${p.name}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                ${p.description.substring(0, 50)}${p.description.length > 50 ? '…' : ''}
+              </div>
+            </td>
+            <td style="color:var(--amber); font-weight:700; white-space:nowrap;">
+              ${formatPrice(p.price)}
+            </td>
+            <td style="color:var(--text-soft);">${p.stock ?? 0}</td>
+            <td>
+              <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                ${(p.sizes || []).map(s =>
+                  `<span style="background:var(--surface2); border:1px solid var(--border); padding:1px 7px; border-radius:4px; font-size:11px;">${s}</span>`
+                ).join('')}
+              </div>
+            </td>
+            <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">
+              ${formatDate(p.createdAt)}
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p._id}', '${p.name}')">
+                🗑 Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch {
+      document.getElementById('prod-loading').innerHTML =
+        '<div style="color:var(--red); padding:24px; text-align:center;">Failed to load products.</div>';
+    }
+  }
+
+  // ── Delete product ────────────────────────────────────────
+  async function deleteProduct(id, name) {
+    if (!confirmAction(`Delete "${name}"? This cannot be undone.`)) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/products/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(`"${name}" deleted`, 'success');
+        loadProducts();
+      } else {
+        showToast(data.message || 'Delete failed', 'error');
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+    }
+  }
+
+  loadProducts();
+</script>
+</body>
+</html>

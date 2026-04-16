@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout — DhupQwik</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .checkout-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .checkout-layout { grid-template-columns: 1fr; }
+      .order-summary-col { order: -1; } /* Show summary first on mobile */
+    }
+
+    .checkout-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+    .checkout-card-title {
+      font-size: 20px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Order summary */
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      gap: 12px;
+    }
+    .summary-item:last-of-type { border-bottom: none; }
+    .summary-item-name {
+      flex: 1;
+      font-weight: 500;
+      min-width: 0;
+    }
+    .summary-item-meta {
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+    .summary-item-price { font-weight: 600; color: var(--saffron); white-space: nowrap; }
+    .summary-item-price::before { content: '₹'; font-size: 11px; }
+
+    .summary-total-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px 0 0;
+      margin-top: 8px;
+      border-top: 2px solid var(--ink);
+    }
+    .summary-total-row span:last-child { color: var(--saffron); }
+    .summary-total-row span:last-child::before { content: '₹'; font-size: 13px; }
+
+    /* COD notice */
+    .cod-notice {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #856404;
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    /* Success screen */
+    .success-screen {
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .success-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+      animation: popIn 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .success-screen h2 { font-size: 32px; margin-bottom: 12px; }
+    .success-screen p  { color: var(--ink-muted); font-size: 16px; max-width: 420px; margin: 0 auto 32px; }
+    .success-order-id {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 24px;
+      font-family: monospace;
+      font-size: 14px;
+      color: var(--ink-soft);
+      display: inline-block;
+      margin-bottom: 32px;
+    }
+    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
+    <div class="nav-links">
+      <a href="index.html">Shop</a>
+      <a href="orders.html">My Orders</a>
+      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
+      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
+      <a href="cart.html" class="cart-btn">
+        🛒 Cart <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<div class="page-container">
+
+  <!-- ── SUCCESS SCREEN (shown after order placed) ────────── -->
+  <div id="success-screen" class="success-screen" style="display:none;">
+    <div class="success-icon">🎉</div>
+    <h2>Order Placed!</h2>
+    <p>Thank you! Your order has been received. We'll confirm it shortly. Pay cash when it arrives.</p>
+    <div class="success-order-id" id="success-order-id"></div>
+    <div class="success-actions">
+      <a href="orders.html" class="btn btn-primary btn-lg">Track My Order →</a>
+      <a href="index.html" class="btn btn-ghost btn-lg">Continue Shopping</a>
+    </div>
+  </div>
+
+  <!-- ── EMPTY CART WARNING ────────────────────────────────── -->
+  <div class="empty-state" id="empty-warning" style="display:none;">
+    <div class="empty-state-icon">🛒</div>
+    <h3>Your cart is empty</h3>
+    <p>Add items before checking out.</p>
+    <a href="index.html" class="btn btn-primary">Browse Products</a>
+  </div>
+
+  <!-- ── CHECKOUT FORM ─────────────────────────────────────── -->
+  <div id="checkout-content">
+    <h1 class="page-title">Checkout</h1>
+    <p class="page-subtitle">Fill in your details and we'll deliver to your door.</p>
+
+    <div class="checkout-layout">
+
+      <!-- Left: Delivery Form -->
+      <div class="checkout-card">
+        <h2 class="checkout-card-title">📍 Delivery Details</h2>
+
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-input" id="customer-name"
+            placeholder="e.g. Rahul Das" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mobile Number *</label>
+          <input type="tel" class="form-input" id="customer-phone"
+            placeholder="e.g. 9876543210" maxlength="10" />
+          <small style="color:var(--ink-muted); font-size:12px; margin-top:4px; display:block;">
+            We'll update you about your delivery on this number.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Delivery Address *</label>
+          <textarea class="form-input" id="customer-address" rows="3"
+            placeholder="House/Flat No., Street, Area, City, PIN Code"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Order Note (optional)</label>
+          <input type="text" class="form-input" id="order-note"
+            placeholder="e.g. Call before delivery" />
+        </div>
+
+        <div class="cod-notice">
+          💵 <strong>Cash on Delivery only.</strong>&nbsp; No online payment required. Pay cash when your order arrives.
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" style="margin-top:24px;"
+          id="place-order-btn" onclick="placeOrder()">
+          Place Order →
+        </button>
+      </div>
+
+      <!-- Right: Order Summary -->
+      <div class="order-summary-col">
+        <div class="checkout-card">
+          <h2 class="checkout-card-title">🛒 Your Order</h2>
+          <div id="order-summary-items"></div>
+          <div class="summary-total-row">
+            <span>Total to Pay</span>
+            <span id="order-total"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <strong>DhupQwik</strong> — Cash on Delivery Only · Made with ❤️ in Kolkata
+</footer>
+
+<script src="utils.js"></script>
+<script>
+  // ── Pre-fill phone from session ───────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const phone = getCustomerPhone();
+    if (phone) {
+      document.getElementById('customer-phone').value = phone;
+    }
+
+    const cart = getCart();
+    if (cart.length === 0) {
+      document.getElementById('checkout-content').style.display = 'none';
+      document.getElementById('empty-warning').style.display = 'block';
+      return;
+    }
+
+    renderOrderSummary(cart);
+  });
+
+  function renderOrderSummary(cart) {
+    const total = getCartTotal();
+    const itemsEl = document.getElementById('order-summary-items');
+    itemsEl.innerHTML = cart.map(item => `
+      <div class="summary-item">
+        <div>
+          <div class="summary-item-name">${item.name}</div>
+          <div class="summary-item-meta">Size: ${item.size} · Qty: ${item.quantity}</div>
+        </div>
+        <div class="summary-item-price">${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+      </div>
+    `).join('');
+    document.getElementById('order-total').textContent =
+      total.toLocaleString('en-IN');
+  }
+
+  // ── Place Order ───────────────────────────────────────────
+  async function placeOrder() {
+    const name    = document.getElementById('customer-name').value.trim();
+    const phone   = document.getElementById('customer-phone').value.trim();
+    const address = document.getElementById('customer-address').value.trim();
+    const note    = document.getElementById('order-note').value.trim();
+    const cart    = getCart();
+
+    console.log("CART DATA:", cart);
+    // Validate
+    if (!name) {
+      showToast('Please enter your name', 'error');
+      document.getElementById('customer-name').focus(); return;
+    }
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      showToast('Enter a valid 10-digit mobile number', 'error');
+      document.getElementById('customer-phone').focus(); return;
+    }
+    if (!address || address.length < 10) {
+      showToast('Please enter your full delivery address', 'error');
+      document.getElementById('customer-address').focus(); return;
+    }
+    if (cart.length === 0) {
+      showToast('Your cart is empty', 'error'); return;
+    }
+
+    // Disable button to prevent double-click
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order...';
+
+    try {
+      const res = await fetch(`${API_BASE}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: name,
+          phone,
+          address,
+          orderNote: note,
+          items: cart.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size
+          })),
+          totalPrice: getCartTotal()
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Save phone for future visits
+        setCustomerPhone(phone);
+        // Clear cart
+        clearCart();
+        // Show success screen
+        document.getElementById('checkout-content').style.display = 'none';
+        document.getElementById('success-screen').style.display = 'block';
+        document.getElementById('success-order-id').textContent =
+          'Order ID: ' + (data._id || data.order?._id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        showToast(data.message || 'Failed to place order', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Place Order →';
+      }
+    } catch (err) {
+      showToast('Cannot reach server. Check if backend is running.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Place Order →';
+    }
+  }
+</script>
+</body>
+</html>

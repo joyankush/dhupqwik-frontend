@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product — DhupQwik</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink-muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+      transition: var(--transition);
+    }
+    .back-link:hover { color: var(--saffron); }
+
+    .product-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .product-detail { grid-template-columns: 1fr; gap: 28px; }
+    }
+
+    .product-img-wrap {
+      position: sticky;
+      top: 80px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid var(--border);
+    }
+    .product-img-wrap img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+    }
+    .product-img-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      color: var(--border);
+    }
+
+    .product-info {}
+    .product-category {
+      display: inline-block;
+      background: var(--paper);
+      color: var(--ink-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .product-name {
+      font-size: clamp(26px, 4vw, 38px);
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+    .product-detail-price {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--saffron);
+      margin-bottom: 4px;
+    }
+    .product-detail-price::before { content: '₹'; font-size: 20px; }
+    .cod-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #d4edda;
+      color: #155724;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .product-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+    .product-desc {
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    /* Size selector */
+    .size-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .sizes-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .size-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      background: var(--white);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .size-btn:hover   { border-color: var(--saffron); color: var(--saffron); }
+    .size-btn.selected {
+      background: var(--saffron);
+      border-color: var(--saffron);
+      color: var(--white);
+    }
+
+    /* Quantity */
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .qty-label { font-size: 13px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; }
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    .qty-btn:hover { background: var(--border); }
+    .qty-value {
+      width: 48px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      height: 40px;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Action buttons */
+    .action-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .action-btns .btn { flex: 1; min-width: 140px; }
+
+    .stock-info {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .stock-info strong { color: var(--green); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════ -->
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
+    <div class="nav-links">
+      <a href="orders.html">My Orders</a>
+      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
+      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
+      <a href="cart.html" class="cart-btn">
+        🛒 Cart <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══ CONTENT ══════════════════════════════════════════════ -->
+<div class="page-container">
+
+  <a href="index.html" class="back-link">← Back to Shop</a>
+
+  <!-- Loading state -->
+  <div class="loading-wrap" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Product detail (filled by JS) -->
+  <div id="product-detail" style="display:none;"></div>
+
+  <!-- Error state -->
+  <div class="empty-state" id="error-state" style="display:none;">
+    <div class="empty-state-icon">⚠️</div>
+    <h3>Product not found</h3>
+    <p>This product may no longer be available.</p>
+    <a href="index.html" class="btn btn-primary">Back to Shop</a>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <strong>DhupQwik</strong> — Cash on Delivery Only · Made by joyankush
+</footer>
+
+<script src="utils.js"></script>
+<script>
+  let currentProduct = null;
+  let selectedSize = null;
+  let quantity = 1;
+
+  // ── Get product ID from URL (?id=xxx) ─────────────────────
+  function getProductId() {
+    return new URLSearchParams(window.location.search).get('id');
+  }
+
+  // ── Load product from backend ─────────────────────────────
+  async function loadProduct() {
+    const id = getProductId();
+    if (!id) {
+      showError(); return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/products/${id}`);
+      const data = await res.json();
+      if (data && data._id) {
+  currentProduct = data;
+  renderProduct(data);
+} else {
+  showError();
+}
+    } catch {
+      showError();
+    }
+  }
+
+  // ── Render product detail ─────────────────────────────────
+  function renderProduct(p) {
+    document.title = `${p.name} — DhupQwik`;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('product-detail').style.display = 'grid';
+
+    const imgUrl = getImageUrl(p.image);
+    const imgHTML = imgUrl
+      ? `<img src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+         <div class="product-img-placeholder" style="display:none;">👕</div>`
+      : `<div class="product-img-placeholder">👕</div>`;
+
+    // Default select first size
+    selectedSize = p.sizes?.[0] || 'M';
+
+    const sizesHTML = (p.sizes || ['S','M','L','XL']).map(s => `
+      <button class="size-btn ${s === selectedSize ? 'selected' : ''}"
+        onclick="selectSize('${s}')" id="size-${s}">${s}</button>
+    `).join('');
+
+    document.getElementById('product-detail').className = 'product-detail';
+    document.getElementById('product-detail').innerHTML = `
+      <div class="product-img-wrap">${imgHTML}</div>
+
+      <div class="product-info">
+        <span class="product-category">👔 Clothes</span>
+        <h1 class="product-name">${p.name}</h1>
+        <div class="product-detail-price">${p.price.toLocaleString('en-IN')}</div>
+        <div class="cod-badge">💵 Cash on Delivery</div>
+
+        <div class="product-divider"></div>
+
+        <p class="product-desc">${p.description}</p>
+
+        <div class="size-label">Select Size</div>
+        <div class="sizes-row">${sizesHTML}</div>
+
+        <div class="qty-row">
+          <span class="qty-label">Qty</span>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <div class="qty-value" id="qty-display">1</div>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+
+        <div class="action-btns">
+          <button class="btn btn-primary btn-lg" onclick="handleAddToCart()">
+            🛒 Add to Cart
+          </button>
+          <button class="btn btn-outline btn-lg" onclick="handleBuyNow()">
+            Buy Now
+          </button>
+        </div>
+
+        ${p.stock > 0 ? `<p class="stock-info">✅ <strong>${p.stock} in stock</strong></p>` : ''}
+      </div>
+    `;
+  }
+
+  // ── Size selection ────────────────────────────────────────
+  function selectSize(size) {
+    selectedSize = size;
+    document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected'));
+    document.getElementById(`size-${size}`)?.classList.add('selected');
+  }
+
+  // ── Quantity control ──────────────────────────────────────
+  function changeQty(delta) {
+    quantity = Math.max(1, Math.min(10, quantity + delta));
+    document.getElementById('qty-display').textContent = quantity;
+  }
+
+  // ── Add to cart ───────────────────────────────────────────
+  function handleAddToCart() {
+    if (!currentProduct) return;
+    if (!selectedSize) { showToast('Please select a size', 'error'); return; }
+    addToCart(currentProduct, selectedSize, quantity);
+  }
+
+  // ── Buy now (add to cart then go to cart) ─────────────────
+  function handleBuyNow() {
+    if (!currentProduct) return;
+    if (!selectedSize) { showToast('Please select a size', 'error'); return; }
+    addToCart(currentProduct, selectedSize, quantity);
+    setTimeout(() => window.location.href = 'cart.html', 400);
+  }
+
+  function showError() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+  }
+
+  loadProduct();
+</script>
+</body>
+</html>

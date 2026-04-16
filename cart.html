@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart — DhupQwik</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .cart-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 32px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .cart-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Cart Items */
+    .cart-items-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .cart-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .cart-item-img {
+      width: 80px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      background: var(--paper);
+      flex-shrink: 0;
+    }
+    .cart-item-img-placeholder {
+      width: 80px;
+      height: 100px;
+      background: var(--paper);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cart-item-size {
+      font-size: 12px;
+      color: var(--ink-muted);
+      background: var(--paper);
+      padding: 2px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .cart-item-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--saffron);
+    }
+    .cart-item-price::before { content: '₹'; font-size: 12px; }
+
+    .cart-item-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .qty-controls-sm {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .qty-btn-sm {
+      width: 32px;
+      height: 32px;
+      background: var(--paper);
+      font-size: 16px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    .qty-btn-sm:hover { background: var(--border); }
+    .qty-val-sm {
+      width: 36px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      height: 32px;
+      display: grid;
+      place-items: center;
+    }
+    .remove-btn {
+      font-size: 12px;
+      color: var(--ink-muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    .remove-btn:hover { background: #f8d7da; color: var(--red); }
+
+    /* Order Summary Card */
+    .summary-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      position: sticky;
+      top: 84px;
+    }
+    .summary-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+    }
+    .summary-row.total {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 6px;
+    }
+    .summary-row.total span:last-child { color: var(--saffron); }
+    .cod-info {
+      background: #d4edda;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 13px;
+      color: #155724;
+      margin: 16px 0;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════════════════ -->
+<header class="site-header">
+  <nav class="nav-inner">
+    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
+    <div class="nav-links">
+      <a href="index.html">Shop</a>
+      <a href="orders.html">My Orders</a>
+      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
+      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
+      <a href="cart.html" class="cart-btn active">
+        🛒 Cart <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<div class="page-container">
+  <h1 class="page-title">Your Cart</h1>
+  <p class="page-subtitle" id="cart-subtitle"></p>
+
+  <!-- Empty cart -->
+  <div class="empty-state" id="empty-cart" style="display:none;">
+    <div class="empty-state-icon">🛒</div>
+    <h3>Your cart is empty</h3>
+    <p>Add some clothes to get started!</p>
+    <a href="index.html" class="btn btn-primary">Browse Products</a>
+  </div>
+
+  <!-- Cart content -->
+  <div class="cart-layout" id="cart-content" style="display:none;">
+
+    <!-- Left: items -->
+    <div>
+      <div class="cart-items-list" id="cart-items-list"></div>
+    </div>
+
+    <!-- Right: summary -->
+    <div>
+      <div class="summary-card">
+        <div class="summary-title">Order Summary</div>
+        <div class="summary-row">
+          <span id="summary-items-label">Items</span>
+          <span id="summary-subtotal"></span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery</span>
+          <span style="color:var(--green); font-weight:600;">FREE</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="summary-total"></span>
+        </div>
+        <div class="cod-info">
+          💵 <span>Cash on Delivery — Pay when your order arrives at your door.</span>
+        </div>
+        <a href="checkout.html" class="btn btn-primary btn-full btn-lg">
+          Proceed to Checkout →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <strong>DhupQwik</strong> — Cash on Delivery Only · Made with ❤️ in Kolkata
+</footer>
+
+<script src="utils.js"></script>
+<script>
+  function renderCart() {
+    const cart = getCart();
+    const emptyEl   = document.getElementById('empty-cart');
+    const contentEl = document.getElementById('cart-content');
+    const subtitle  = document.getElementById('cart-subtitle');
+
+    if (cart.length === 0) {
+      emptyEl.style.display = 'block';
+      contentEl.style.display = 'none';
+      subtitle.textContent = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'grid';
+
+    const total = getCartTotal();
+    const count = getCartCount();
+    subtitle.textContent = `${count} item${count !== 1 ? 's' : ''} in your cart`;
+
+    // Render items
+    document.getElementById('cart-items-list').innerHTML = cart.map(item => {
+      const imgUrl = getImageUrl(item.image);
+      const imgHTML = imgUrl
+        ? `<img class="cart-item-img" src="${imgUrl}" alt="${item.name}" onerror="this.style.display='none'">`
+        : `<div class="cart-item-img-placeholder">👕</div>`;
+
+      return `
+        <div class="cart-item">
+          ${imgHTML}
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-size">Size: ${item.size}</div>
+            <div class="cart-item-price">${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+          </div>
+          <div class="cart-item-controls">
+            <div class="qty-controls-sm">
+              <button class="qty-btn-sm" onclick="changeQty('${item.productId}','${item.size}',-1)">−</button>
+              <div class="qty-val-sm">${item.quantity}</div>
+              <button class="qty-btn-sm" onclick="changeQty('${item.productId}','${item.size}',1)">+</button>
+            </div>
+            <button class="remove-btn" onclick="removeItem('${item.productId}','${item.size}')">
+              🗑 Remove
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Update summary
+    document.getElementById('summary-items-label').textContent =
+      `${count} item${count !== 1 ? 's' : ''}`;
+    document.getElementById('summary-subtotal').textContent = formatPrice(total);
+    document.getElementById('summary-total').textContent = formatPrice(total);
+  }
+
+  function changeQty(productId, size, delta) {
+    const cart = getCart();
+    const item = cart.find(i => i.productId === productId && i.size === size);
+    if (!item) return;
+    const newQty = item.quantity + delta;
+    if (newQty <= 0) {
+      removeFromCart(productId, size);
+    } else {
+      updateCartItemQty(productId, size, newQty);
+    }
+    renderCart();
+  }
+
+  function removeItem(productId, size) {
+    removeFromCart(productId, size);
+    showToast('Item removed from cart');
+    renderCart();
+  }
+
+  renderCart();
+</script>
+</body>
+</html>

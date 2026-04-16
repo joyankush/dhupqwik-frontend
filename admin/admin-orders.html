@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orders — DhupQwik Admin</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+  <style>
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      background: var(--surface);
+      cursor: pointer;
+      transition: var(--trans);
+    }
+    .filter-tab:hover { border-color: var(--border2); color: var(--text); }
+    .filter-tab.active {
+      background: var(--amber-glow);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    /* Order detail rows */
+    .order-items-expand {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+    .order-items-expand td {
+      padding: 16px;
+    }
+    .order-item-mini {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .order-item-mini:last-child { border-bottom: none; }
+    .order-item-mini-name { flex: 1; }
+    .order-item-mini-meta { color: var(--text-muted); font-size: 12px; }
+    .order-item-mini-price { color: var(--amber); font-weight: 600; }
+
+    /* Status select */
+    .status-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      outline: none;
+      transition: var(--trans);
+    }
+    .status-select:focus { border-color: var(--amber); }
+
+    /* Expand button */
+    .expand-btn {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: var(--trans);
+    }
+    .expand-btn:hover { border-color: var(--border2); color: var(--text); }
+
+    /* Address tooltip */
+    .addr-cell {
+      max-width: 160px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Dhup<span>Qwik</span></div>
+      <div class="sidebar-badge">ADMIN PANEL</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
+        <span class="nav-icon">👕</span> Products
+      </a>
+      <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
+        <span class="nav-icon">📦</span> Orders
+      </a>
+      <a href="../frontend/index.html" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> View Store ↗
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar">👤</div>
+        <div>
+          <div class="admin-name">Admin</div>
+          <div class="admin-role">Store Manager</div>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ════════════════════════════════════════════════ -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Orders</div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+        <span id="topbar-time" class="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-status="">All</button>
+        <button class="filter-tab" data-status="pending">🕐 Pending</button>
+        <button class="filter-tab" data-status="confirmed">✅ Confirmed</button>
+        <button class="filter-tab" data-status="out for delivery">🚴 Out for Delivery</button>
+        <button class="filter-tab" data-status="delivered">📦 Delivered</button>
+        <button class="filter-tab" data-status="cancelled">❌ Cancelled</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <div id="orders-loading"><div class="spinner"></div></div>
+
+        <table class="data-table" id="orders-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+
+        <div class="table-empty" id="orders-empty" style="display:none;">
+          <div class="table-empty-icon">📭</div>
+          <div>No orders found for this filter.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══ ORDER DETAIL MODAL ══════════════════════════════════ -->
+<div class="modal-overlay" id="order-modal">
+  <div class="modal-box" style="max-width:540px;">
+    <div class="modal-head">
+      <h3>Order Details</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  requireAuth();
+
+  let currentFilter = '';
+  let allOrders = [];
+
+  // ── Filter tabs ───────────────────────────────────────────
+  document.getElementById('filter-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.status;
+    renderOrders(
+      currentFilter
+        ? allOrders.filter(o => o.status === currentFilter)
+        : allOrders
+    );
+  });
+
+  // ── Load orders ───────────────────────────────────────────
+  async function loadOrders() {
+    document.getElementById('orders-loading').style.display = 'block';
+    document.getElementById('orders-table').style.display = 'none';
+    document.getElementById('orders-empty').style.display = 'none';
+
+    try {
+      const res = await fetch(`${API_BASE}/orders?limit=200`, {
+        headers: authHeaders()
+      });
+      const data = await res.json();
+      allOrders = Array.isArray(data) ? data : (data.orders || []);
+
+      document.getElementById('orders-loading').style.display = 'none';
+
+      renderOrders(
+        currentFilter
+          ? allOrders.filter(o => o.status === currentFilter)
+          : allOrders
+      );
+    } catch {
+      document.getElementById('orders-loading').innerHTML =
+        '<div style="color:var(--red); padding:24px; text-align:center;">Failed to load orders. Is the server running?</div>';
+    }
+  }
+
+  // ── Render orders into table ──────────────────────────────
+  function renderOrders(orders) {
+    if (orders.length === 0) {
+      document.getElementById('orders-empty').style.display = 'block';
+      document.getElementById('orders-table').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('orders-table').style.display = 'table';
+    document.getElementById('orders-empty').style.display = 'none';
+
+    document.getElementById('orders-body').innerHTML = orders.map(o => {
+      const shortId = o._id.slice(-8).toUpperCase();
+      return `
+        <tr>
+          <td>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px;
+              color:var(--text-muted); background:var(--surface2); padding:2px 8px;
+              border-radius:4px; cursor:pointer;"
+              onclick="showOrderDetail('${o._id}')"
+              title="Click to view details">
+              ${shortId}
+            </span>
+          </td>
+          <td style="font-weight:500;">${o.customerName}</td>
+          <td style="font-family:'IBM Plex Mono',monospace; font-size:12px;">${o.phone}</td>
+          <td class="addr-cell" title="${o.address}">${o.address}</td>
+          <td>
+            <button class="expand-btn" onclick="showOrderDetail('${o._id}')">
+              ${o.items?.length || 0} items 🔍
+            </button>
+          </td>
+          <td style="color:var(--amber); font-weight:700; white-space:nowrap;">
+            ${formatPrice(o.totalPrice)}
+          </td>
+          <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">
+            ${formatDate(o.createdAt)}
+          </td>
+          <td>${statusBadge(o.status)}</td>
+          <td>
+            <select class="status-select" onchange="updateStatus('${o._id}', this.value, this)">
+              <option value="">— Change —</option>
+              <option value="pending">🕐 Pending</option>
+              <option value="confirmed">✅ Confirmed</option>
+              <option value="out for delivery">🚴 Out for Delivery</option>
+              <option value="delivered">📦 Delivered</option>
+              <option value="cancelled">❌ Cancelled</option>
+            </select>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ── Update order status ───────────────────────────────────
+  async function updateStatus(orderId, newStatus, selectEl) {
+    if (!newStatus) return; // "— Change —" selected
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: newStatus })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(`Status updated → ${newStatus}`, 'success');
+        // Update local data without full reload
+        const order = allOrders.find(o => o._id === orderId);
+        if (order) order.status = newStatus;
+        loadOrders(); // reload to refresh badges
+      } else {
+        showToast(data.message || 'Update failed', 'error');
+        selectEl.value = ''; // reset dropdown
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+      selectEl.value = '';
+    }
+  }
+
+  // ── Order detail modal ────────────────────────────────────
+  function showOrderDetail(orderId) {
+    const order = allOrders.find(o => o._id === orderId);
+    if (!order) return;
+
+    const itemsHTML = (order.items || []).map(item => `
+      <div class="order-item-mini">
+        <div>
+          <div class="order-item-mini-name">${item.name}</div>
+          <div class="order-item-mini-meta">Size: ${item.size} · Qty: ${item.quantity}</div>
+        </div>
+        <div class="order-item-mini-price">
+          ₹${(item.price * item.quantity).toLocaleString('en-IN')}
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('modal-content').innerHTML = `
+      <div style="display:grid; gap:12px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Order ID</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; margin-top:2px;">${order._id}</div>
+          </div>
+          ${statusBadge(order.status)}
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div>
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Customer</div>
+            <div style="font-weight:600;">${order.customerName}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Phone</div>
+            <div style="font-family:'IBM Plex Mono',monospace;">${order.phone}</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Delivery Address</div>
+          <div style="font-size:13px; color:var(--text-soft);">${order.address}</div>
+        </div>
+        ${order.orderNote ? `
+          <div>
+            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">Note</div>
+            <div style="font-size:13px; color:var(--text-soft);">${order.orderNote}</div>
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:10px;">Items</div>
+      <div style="border:1px solid var(--border); border-radius:var(--radius);">
+        ${itemsHTML}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+        <div style="font-size:13px; color:var(--text-muted);">
+          💵 Cash on Delivery<br/>
+          <span style="font-size:11px;">Placed: ${formatDate(order.createdAt)}</span>
+        </div>
+        <div style="font-size:20px; font-weight:700; color:var(--amber);">
+          ${formatPrice(order.totalPrice)}
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Update Status</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${['pending','confirmed','out for delivery','delivered','cancelled'].map(s => `
+            <button class="btn btn-sm ${order.status === s ? 'btn-amber' : 'btn-ghost'}"
+              onclick="updateStatusFromModal('${order._id}', '${s}')">
+              ${s}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('order-modal').classList.add('open');
+  }
+
+  async function updateStatusFromModal(orderId, newStatus) {
+    try {
+      const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        showToast(`Status updated → ${newStatus}`, 'success');
+        closeModal();
+        loadOrders();
+      } else {
+        showToast('Update failed', 'error');
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('order-modal').classList.remove('open');
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('order-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  loadOrders();
+</script>
+</body>
+</html>

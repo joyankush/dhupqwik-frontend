@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — DhupQwik Admin</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Dhup<span>Qwik</span></div>
+      <div class="sidebar-badge">ADMIN PANEL</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
+        <span class="nav-icon">👕</span> Products
+      </a>
+      <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
+        <span class="nav-icon">📦</span> Orders
+      </a>
+      <a href="../frontend/index.html" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> View Store ↗
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar">👤</div>
+        <div>
+          <div class="admin-name">Admin</div>
+          <div class="admin-role">Store Manager</div>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout">⏏</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══════════════════════════════════════ -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <span class="topbar-time" id="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value amber" id="stat-total">—</div>
+          <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" style="color:var(--orange);" id="stat-pending">—</div>
+          <div class="stat-sub">need action</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Out for Delivery</div>
+          <div class="stat-value blue" id="stat-out">—</div>
+          <div class="stat-sub">on the way</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Delivered</div>
+          <div class="stat-value green" id="stat-delivered">—</div>
+          <div class="stat-sub">completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Revenue</div>
+          <div class="stat-value amber" id="stat-revenue" style="font-size:22px;">—</div>
+          <div class="stat-sub">from delivered orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value" id="stat-products">—</div>
+          <div class="stat-sub">in catalogue</div>
+        </div>
+      </div>
+
+      <!-- Recent Orders -->
+      <div class="section-head">
+        <h2>Recent Orders</h2>
+        <a href="admin-orders.html" class="btn btn-ghost btn-sm">View All →</a>
+      </div>
+
+      <div class="table-wrap">
+        <div id="recent-loading" style="text-align:center; padding:32px;">
+          <div class="spinner"></div>
+        </div>
+        <table class="data-table" id="recent-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="recent-orders-body"></tbody>
+        </table>
+        <div class="table-empty" id="recent-empty" style="display:none;">
+          <div class="table-empty-icon">📭</div>
+          <div>No orders yet.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  requireAuth();
+
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/orders/stats/summary`, {
+        headers: authHeaders()
+      });
+      const data = await res.json();
+      if (data.stats) {
+        const s = data.stats;
+        document.getElementById('stat-total').textContent     = s.totalOrders;
+        document.getElementById('stat-pending').textContent   = s.pending;
+        document.getElementById('stat-out').textContent       = s.outForDelivery;
+        document.getElementById('stat-delivered').textContent = s.delivered;
+        document.getElementById('stat-revenue').textContent   = formatPrice(s.totalRevenue);
+      }
+    } catch (e) {
+      console.error('Stats error', e);
+    }
+  }
+
+  async function loadProductCount() {
+    try {
+      const res = await fetch(`${API_BASE}/products`);
+      const data = await res.json();
+      document.getElementById('stat-products').textContent = data.count || 0;
+    } catch {}
+  }
+
+  async function loadRecentOrders() {
+    try {
+      const res = await fetch(`${API_BASE}/orders?limit=8`, {
+        headers: authHeaders()
+      });
+      const data = await res.json();
+      const orders = Array.isArray(data) ? data : (data.orders || []);
+
+      document.getElementById('recent-loading').style.display = 'none';
+
+      if (orders.length === 0) {
+        document.getElementById('recent-empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('recent-table').style.display = 'table';
+      document.getElementById('recent-orders-body').innerHTML = orders.map(o => `
+        <tr>
+          <td style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-muted);">
+            ${o._id.slice(-8).toUpperCase()}
+          </td>
+          <td style="font-weight:500;">${o.customerName}</td>
+          <td style="color:var(--text-muted);">${o.phone}</td>
+          <td>${o.items?.length || 0} item${o.items?.length !== 1 ? 's' : ''}</td>
+          <td style="color:var(--amber); font-weight:600;">${formatPrice(o.totalPrice)}</td>
+          <td>${statusBadge(o.status)}</td>
+          <td style="color:var(--text-muted); font-size:12px;">${formatDate(o.createdAt)}</td>
+        </tr>
+      `).join('');
+    } catch {
+      document.getElementById('recent-loading').innerHTML =
+        '<div style="color:var(--red); padding:24px; text-align:center;">Failed to load orders. Is the server running?</div>';
+    }
+  }
+
+  loadStats();
+  loadProductCount();
+  loadRecentOrders();
+</script>
+
+</body>
+</html>
