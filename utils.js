@@ -5,8 +5,8 @@
 // ── Config ──────────────────────────────────────────────────
 // This is the address of your backend server.
 // Change this if your backend runs on a different port.
-const API_BASE = 'http://localhost:5000';
 
+const API_BASE = "https://dhupqwik-backend.onrender.com";
 // ── Image URL helper ─────────────────────────────────────────
 // Converts a stored filename into a full URL
 // e.g. "123-shirt.jpg" → "http://localhost:5000/uploads/123-shirt.jpg"
