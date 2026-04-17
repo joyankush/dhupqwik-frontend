@@ -154,8 +154,7 @@
             <div class="form-group">
               <label class="form-label">Product Image *</label>
               <div class="upload-area" id="upload-area">
-                <input type="file" id="prod-image" accept="image/*"
-                  onchange="previewImage(this)"/>
+                <input type="file" id="prod-images" accept="image/*" multiple onchange="previewImage(this)" />
                 <div id="upload-placeholder">
                   <div class="upload-icon">📷</div>
                   <div class="upload-text">
@@ -244,13 +243,20 @@
     const desc  = document.getElementById('prod-desc').value.trim();
     const stock = document.getElementById('prod-stock').value.trim();
     const sizes = getSelectedSizes();
-    const imageFile = document.getElementById('prod-image').files[0];
+    const imageFiles = document.getElementById('prod-images').files;
+
+if (imageFiles.length === 0) {
+  showToast('Please select at least one image', 'error');
+  return;
+}
+
+
 
     // Validate
     if (!name)  { showToast('Product name is required', 'error'); return; }
     if (!price) { showToast('Price is required', 'error'); return; }
     if (!desc)  { showToast('Description is required', 'error'); return; }
-    if (!imageFile) { showToast('Please select a product image', 'error'); return; }
+    if (imageFiles.length === 0) { showToast('Please select a product image', 'error'); return; }
     if (sizes.length === 0) { showToast('Select at least one size', 'error'); return; }
 
     const btn = document.getElementById('add-product-btn');
@@ -265,7 +271,10 @@
     formData.append('description', desc);
     formData.append('stock', stock || '0');
     formData.append('sizes', JSON.stringify(sizes));
-    formData.append('image', imageFile); // attach the image file
+     // attach the image file
+     for (let i = 0; i < imageFiles.length; i++) {
+  formData.append('images', imageFiles[i]); // IMPORTANT
+}
 
     try {
       const res = await fetch(`${API_BASE}/products`, {
@@ -296,7 +305,7 @@
     document.getElementById('prod-price').value = '';
     document.getElementById('prod-desc').value = '';
     document.getElementById('prod-stock').value = '';
-    document.getElementById('prod-image').value = '';
+    document.getElementById('prod-images').value = '';
     document.getElementById('image-preview').style.display = 'none';
     document.getElementById('upload-placeholder').style.display = 'block';
   }
@@ -323,7 +332,7 @@
 
       document.getElementById('prod-table').style.display = 'table';
       document.getElementById('products-body').innerHTML = products.map(p => {
-        const imgUrl = getImageUrl(p.image);
+        const imgUrl = p.images?.[0] ? getImageUrl(p.images[0]) : null;
         const thumb = imgUrl
           ? `<img class="product-thumb" src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none'">`
           : `<div class="product-thumb-placeholder">👕</div>`;
