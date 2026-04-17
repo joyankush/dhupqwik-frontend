@@ -8,7 +8,7 @@
   <style>
     .products-layout {
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 360px 1fr;
       gap: 24px;
       align-items: start;
     }
@@ -17,41 +17,67 @@
     }
     .add-form { position: sticky; top: 76px; }
 
-    /* Size checkboxes */
-    .sizes-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .size-check {
-      display: none;
-    }
+    .sizes-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .size-check { display: none; }
     .size-check-label {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 36px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-soft);
-      cursor: pointer;
-      transition: var(--trans);
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 36px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 12px; font-weight: 600; color: var(--text-soft);
+      cursor: pointer; transition: var(--trans);
     }
     .size-check:checked + .size-check-label {
-      background: var(--amber-glow);
-      border-color: var(--amber);
-      color: var(--amber);
+      background: var(--amber-glow); border-color: var(--amber); color: var(--amber);
     }
     .size-check-label:hover { border-color: var(--amber); }
+
+    .upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: var(--trans); position: relative;
+    }
+    .upload-area:hover { border-color: var(--amber); background: var(--amber-glow); }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+    .upload-text { font-size: 12px; color: var(--text-soft); }
+    .upload-text strong { color: var(--amber); }
+
+    .preview-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-top: 12px;
+    }
+    .preview-item {
+      position: relative; aspect-ratio: 3/4;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-item .remove-preview {
+      position: absolute; top: 3px; right: 3px;
+      background: rgba(248,81,73,0.85); color: white;
+      border: none; border-radius: 50%;
+      width: 18px; height: 18px; font-size: 10px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .preview-count { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+    .product-thumb {
+      width: 44px; height: 56px; object-fit: cover;
+      border-radius: 6px; background: var(--surface2);
+    }
+    .product-thumb-placeholder {
+      width: 44px; height: 56px; background: var(--surface2);
+      border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
   </style>
 </head>
 <body>
 <div class="app-shell">
 
-  <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-text">Dhup<span>Qwik</span></div>
@@ -83,7 +109,6 @@
     </div>
   </aside>
 
-  <!-- ═══ MAIN CONTENT ═══════════════════════════════════════ -->
   <main class="main-content">
     <div class="topbar">
       <div class="topbar-title">Products</div>
@@ -95,21 +120,19 @@
     <div class="page-body">
       <div class="products-layout">
 
-        <!-- ── LEFT: Add Product Form ─────────────────────── -->
+        <!-- ADD PRODUCT FORM -->
         <div class="add-form">
           <div class="panel">
             <div class="panel-title">➕ Add New Product</div>
 
             <div class="form-group">
               <label class="form-label">Product Name *</label>
-              <input type="text" class="form-input" id="prod-name"
-                placeholder="e.g. Cotton Kurta"/>
+              <input type="text" class="form-input" id="prod-name" placeholder="e.g. Cotton Kurta"/>
             </div>
 
             <div class="form-group">
               <label class="form-label">Price (₹) *</label>
-              <input type="number" class="form-input" id="prod-price"
-                placeholder="e.g. 599" min="0"/>
+              <input type="number" class="form-input" id="prod-price" placeholder="e.g. 599" min="0"/>
             </div>
 
             <div class="form-group">
@@ -120,68 +143,59 @@
 
             <div class="form-group">
               <label class="form-label">Stock Quantity</label>
-              <input type="number" class="form-input" id="prod-stock"
-                placeholder="e.g. 20" min="0"/>
+              <input type="number" class="form-input" id="prod-stock" placeholder="e.g. 20" min="0"/>
             </div>
 
             <div class="form-group">
               <label class="form-label">Available Sizes</label>
               <div class="sizes-row">
-                <!-- Each size is a hidden checkbox + visible label -->
                 <input type="checkbox" class="size-check" id="sz-xs" value="XS"/>
                 <label class="size-check-label" for="sz-xs">XS</label>
-
                 <input type="checkbox" class="size-check" id="sz-s" value="S" checked/>
                 <label class="size-check-label" for="sz-s">S</label>
-
                 <input type="checkbox" class="size-check" id="sz-m" value="M" checked/>
                 <label class="size-check-label" for="sz-m">M</label>
-
                 <input type="checkbox" class="size-check" id="sz-l" value="L" checked/>
                 <label class="size-check-label" for="sz-l">L</label>
-
                 <input type="checkbox" class="size-check" id="sz-xl" value="XL" checked/>
                 <label class="size-check-label" for="sz-xl">XL</label>
-
                 <input type="checkbox" class="size-check" id="sz-xxl" value="XXL"/>
                 <label class="size-check-label" for="sz-xxl">XXL</label>
-
                 <input type="checkbox" class="size-check" id="sz-free" value="Free Size"/>
-                <label class="size-check-label" for="sz-free" style="width:auto; padding:0 10px;">Free</label>
+                <label class="size-check-label" for="sz-free" style="width:auto;padding:0 10px;">Free</label>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Product Image *</label>
-              <div class="upload-area" id="upload-area">
-                <input type="file" id="prod-images" accept="image/*" multiple onchange="previewImage(this)" />
-                <div id="upload-placeholder">
-                  <div class="upload-icon">📷</div>
-                  <div class="upload-text">
-                    <strong>Click to upload</strong> or drag & drop<br/>
-                    JPG, PNG, WEBP up to 5MB
-                  </div>
+              <label class="form-label">Product Images * (up to 5)</label>
+              <div class="upload-area">
+                <!-- ✅ FIX: onchange is INSIDE the tag, not outside it -->
+                <input type="file" id="prod-images" accept="image/*" multiple
+                  onchange="previewImages(this)"/>
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">
+                  <strong>Click to select images</strong><br/>
+                  Hold Ctrl to pick multiple · Max 5
                 </div>
-                <img id="image-preview" class="upload-preview" style="display:none;" alt="preview"/>
               </div>
+              <div class="preview-grid" id="preview-grid" style="display:none;"></div>
+              <div class="preview-count" id="preview-count"></div>
             </div>
 
-            <button class="btn btn-amber btn-full" id="add-product-btn"
-              onclick="addProduct()">
+            <button class="btn btn-amber btn-full" id="add-product-btn" onclick="addProduct()">
               Add Product
             </button>
           </div>
         </div>
 
-        <!-- ── RIGHT: Products Table ──────────────────────── -->
+        <!-- PRODUCTS TABLE -->
         <div>
           <div class="section-head">
-            <h2>All Products <span id="product-count"
-              style="font-size:13px; color:var(--text-muted); font-family:'IBM Plex Sans',sans-serif; font-weight:400;"></span>
+            <h2>All Products
+              <span id="product-count"
+                style="font-size:13px;color:var(--text-muted);font-weight:400;"></span>
             </h2>
-            <button class="btn btn-ghost btn-sm" onclick="loadProducts()">
-              🔄 Refresh
-            </button>
+            <button class="btn btn-ghost btn-sm" onclick="loadProducts()">🔄 Refresh</button>
           </div>
 
           <div class="table-wrap">
@@ -189,13 +203,8 @@
             <table class="data-table" id="prod-table" style="display:none;">
               <thead>
                 <tr>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Sizes</th>
-                  <th>Added</th>
-                  <th>Actions</th>
+                  <th>Image</th><th>Name</th><th>Price</th>
+                  <th>Stock</th><th>Sizes</th><th>Added</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="products-body"></tbody>
@@ -216,116 +225,123 @@
 <script>
   requireAuth();
 
-  // ── Preview selected image ────────────────────────────────
-  function previewImage(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      document.getElementById('image-preview').src = e.target.result;
-      document.getElementById('image-preview').style.display = 'block';
-      document.getElementById('upload-placeholder').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
+  // Track selected files across multiple picks
+  let selectedFiles = [];
+
+  // ✅ FIX: previewImages (plural) matches the onchange above
+  function previewImages(input) {
+    const newFiles = Array.from(input.files);
+    selectedFiles = [...selectedFiles, ...newFiles].slice(0, 5);
+    renderPreviews();
   }
 
-  // ── Get selected sizes ────────────────────────────────────
+  function renderPreviews() {
+    const grid    = document.getElementById('preview-grid');
+    const countEl = document.getElementById('preview-count');
+
+    if (selectedFiles.length === 0) {
+      grid.style.display = 'none';
+      countEl.textContent = '';
+      return;
+    }
+
+    grid.style.display = 'grid';
+    countEl.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+    grid.innerHTML = selectedFiles.map((file, i) => `
+      <div class="preview-item">
+        <img src="${URL.createObjectURL(file)}" alt="preview"/>
+        <button class="remove-preview" onclick="removePreview(${i})">✕</button>
+        ${i === 0 ? '<div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.6);color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;">Main</div>' : ''}
+      </div>
+    `).join('');
+  }
+
+  function removePreview(index) {
+    selectedFiles.splice(index, 1);
+    document.getElementById('prod-images').value = '';
+    renderPreviews();
+  }
+
   function getSelectedSizes() {
-    return Array.from(
-      document.querySelectorAll('.size-check:checked')
-    ).map(cb => cb.value);
+    return Array.from(document.querySelectorAll('.size-check:checked')).map(cb => cb.value);
   }
 
-  // ── Add product ───────────────────────────────────────────
+  // ✅ FIX: formData is declared FIRST, then files are appended to it
   async function addProduct() {
     const name  = document.getElementById('prod-name').value.trim();
     const price = document.getElementById('prod-price').value.trim();
     const desc  = document.getElementById('prod-desc').value.trim();
     const stock = document.getElementById('prod-stock').value.trim();
     const sizes = getSelectedSizes();
-    const imageFiles = document.getElementById('prod-images').files;
-    const files = document.getElementById("prod-images").files;
 
-
-if (imageFiles.length === 0) {
-  showToast('Please select at least one image', 'error');
-  return;
-}
-
-
-
-    // Validate
     if (!name)  { showToast('Product name is required', 'error'); return; }
     if (!price) { showToast('Price is required', 'error'); return; }
     if (!desc)  { showToast('Description is required', 'error'); return; }
-    if (imageFiles.length === 0) { showToast('Please select a product image', 'error'); return; }
+    if (selectedFiles.length === 0) { showToast('Please select at least one image', 'error'); return; }
     if (sizes.length === 0) { showToast('Select at least one size', 'error'); return; }
 
     const btn = document.getElementById('add-product-btn');
     btn.disabled = true;
-    btn.textContent = 'Adding...';
+    btn.textContent = 'Uploading...';
 
-    // Use FormData because we're uploading a file
-    // FormData is like a form that can carry both text AND files
+    // ✅ FIX: FormData declared BEFORE we append files to it
     const formData = new FormData();
     formData.append('name', name);
     formData.append('price', price);
     formData.append('description', desc);
     formData.append('stock', stock || '0');
     formData.append('sizes', JSON.stringify(sizes));
-     // attach the image file
-     for (let i = 0; i < imageFiles.length; i++) {
-    formData.append('images', files[i]); // IMPORTANT
-}
+
+    // ✅ FIX: Now append all image files (formData exists at this point)
+    selectedFiles.forEach(file => formData.append('images', file));
 
     try {
       const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
-        headers: authHeadersMultipart(), // no Content-Type — browser sets it for FormData
+        headers: authHeadersMultipart(),
         body: formData
       });
       const data = await res.json();
 
       if (res.ok) {
-        showToast(`"${data.name}" added successfully!`, 'success');
+        showToast(`"${data.name || data.product?.name}" added!`, 'success');
         resetForm();
         loadProducts();
       } else {
         showToast(data.message || 'Failed to add product', 'error');
       }
-    } catch {
-      showToast('Cannot connect to server', 'error');
+    } catch (err) {
+      showToast('Cannot connect to server: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Add Product';
     }
   }
 
-  // ── Reset form after adding ───────────────────────────────
   function resetForm() {
-    document.getElementById('prod-name').value = '';
+    document.getElementById('prod-name').value  = '';
     document.getElementById('prod-price').value = '';
-    document.getElementById('prod-desc').value = '';
+    document.getElementById('prod-desc').value  = '';
     document.getElementById('prod-stock').value = '';
+    // ✅ FIX: correct ID is prod-images not prod-image
     document.getElementById('prod-images').value = '';
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('upload-placeholder').style.display = 'block';
+    selectedFiles = [];
+    renderPreviews();
   }
 
-  // ── Load all products ─────────────────────────────────────
   async function loadProducts() {
     document.getElementById('prod-loading').style.display = 'block';
-    document.getElementById('prod-table').style.display = 'none';
-    document.getElementById('prod-empty').style.display = 'none';
+    document.getElementById('prod-table').style.display   = 'none';
+    document.getElementById('prod-empty').style.display   = 'none';
 
     try {
-      const res = await fetch(`${API_BASE}/products`);
+      const res  = await fetch(`${API_BASE}/products`);
       const data = await res.json();
+      // ✅ handles both array response and {products:[]} response
       const products = Array.isArray(data) ? data : (data.products || []);
 
       document.getElementById('prod-loading').style.display = 'none';
-      document.getElementById('product-count').textContent =
-        `(${products.length})`;
+      document.getElementById('product-count').textContent  = `(${products.length})`;
 
       if (products.length === 0) {
         document.getElementById('prod-empty').style.display = 'block';
@@ -334,9 +350,10 @@ if (imageFiles.length === 0) {
 
       document.getElementById('prod-table').style.display = 'table';
       document.getElementById('products-body').innerHTML = products.map(p => {
-        const imgUrl = p.images?.[0] ? getImageUrl(p.images[0]) : null;
-        const thumb = imgUrl
-          ? `<img class="product-thumb" src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none'">`
+        const firstImg = p.images?.[0];
+        const thumb = firstImg
+          ? `<img class="product-thumb" src="${firstImg}" alt="${p.name}"
+               onerror="this.style.display='none'">`
           : `<div class="product-thumb-placeholder">👕</div>`;
 
         return `
@@ -344,58 +361,50 @@ if (imageFiles.length === 0) {
             <td>${thumb}</td>
             <td>
               <div style="font-weight:600;">${p.name}</div>
-              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                ${p.description.substring(0, 50)}${p.description.length > 50 ? '…' : ''}
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                ${(p.description || '').substring(0, 50)}${p.description?.length > 50 ? '…' : ''}
               </div>
             </td>
-            <td style="color:var(--amber); font-weight:700; white-space:nowrap;">
-              ${formatPrice(p.price)}
-            </td>
+            <td style="color:var(--amber);font-weight:700;">${formatPrice(p.price)}</td>
             <td style="color:var(--text-soft);">${p.stock ?? 0}</td>
             <td>
-              <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
                 ${(p.sizes || []).map(s =>
-                  `<span style="background:var(--surface2); border:1px solid var(--border); padding:1px 7px; border-radius:4px; font-size:11px;">${s}</span>`
+                  `<span style="background:var(--surface2);border:1px solid var(--border);
+                    padding:1px 7px;border-radius:4px;font-size:11px;">${s}</span>`
                 ).join('')}
               </div>
             </td>
-            <td style="color:var(--text-muted); font-size:12px; white-space:nowrap;">
+            <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
               ${formatDate(p.createdAt)}
             </td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p._id}', '${p.name}')">
+              <button class="btn btn-danger btn-sm"
+                onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g,"\\'")}')">
                 🗑 Delete
               </button>
             </td>
           </tr>
         `;
       }).join('');
-    } catch {
+    } catch (err) {
       document.getElementById('prod-loading').innerHTML =
-        '<div style="color:var(--red); padding:24px; text-align:center;">Failed to load products.</div>';
+        `<div style="color:var(--red);padding:24px;text-align:center;">
+          Failed to load. Error: ${err.message}
+        </div>`;
     }
   }
 
-  // ── Delete product ────────────────────────────────────────
   async function deleteProduct(id, name) {
     if (!confirmAction(`Delete "${name}"? This cannot be undone.`)) return;
-
     try {
-      const res = await fetch(`${API_BASE}/products/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders()
+      const res  = await fetch(`${API_BASE}/products/${id}`, {
+        method: 'DELETE', headers: authHeaders()
       });
       const data = await res.json();
-
-      if (res.ok) {
-        showToast(`"${name}" deleted`, 'success');
-        loadProducts();
-      } else {
-        showToast(data.message || 'Delete failed', 'error');
-      }
-    } catch {
-      showToast('Cannot connect to server', 'error');
-    }
+      if (res.ok) { showToast(`"${name}" deleted`, 'success'); loadProducts(); }
+      else showToast(data.message || 'Delete failed', 'error');
+    } catch { showToast('Cannot connect to server', 'error'); }
   }
 
   loadProducts();
