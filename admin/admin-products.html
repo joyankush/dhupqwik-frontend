@@ -244,6 +244,8 @@
     const stock = document.getElementById('prod-stock').value.trim();
     const sizes = getSelectedSizes();
     const imageFiles = document.getElementById('prod-images').files;
+    const files = document.getElementById("prod-images").files;
+
 
 if (imageFiles.length === 0) {
   showToast('Please select at least one image', 'error');
@@ -273,7 +275,7 @@ if (imageFiles.length === 0) {
     formData.append('sizes', JSON.stringify(sizes));
      // attach the image file
      for (let i = 0; i < imageFiles.length; i++) {
-  formData.append('images', imageFiles[i]); // IMPORTANT
+    formData.append('images', files[i]); // IMPORTANT
 }
 
     try {
