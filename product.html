@@ -258,18 +258,43 @@
     }
   }
 
+function changeImage(img) {
+  document.getElementById("main-image").src = img;
+}
+
+
+
+
   // ── Render product detail ─────────────────────────────────
   function renderProduct(p) {
     document.title = `${p.name} — DhupQwik`;
     document.getElementById('loading').style.display = 'none';
     document.getElementById('product-detail').style.display = 'grid';
 
-    const imgUrl = getImageUrl(p.image);
-    const imgHTML = imgUrl
-      ? `<img src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
-         <div class="product-img-placeholder" style="display:none;">👕</div>`
-      : `<div class="product-img-placeholder">👕</div>`;
+    const images = p.images && p.images.length > 0
+  ? p.images.map(img => getImageUrl(img))
+  : [];
 
+let imgHTML = "";
+
+if (images.length > 0) {
+  imgHTML = `
+    <div>
+      <img id="main-image" src="${images[0]}" alt="${p.name}"
+        style="width:100%; max-width:350px;" />
+
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        ${images.map(img => `
+          <img src="${img}"
+               style="width:60px; cursor:pointer; border-radius:6px;"
+               onclick="changeImage('${img}')">
+        `).join("")}
+      </div>
+    </div>
+  `;
+} else {
+  imgHTML = `<div class="product-img-placeholder">👕</div>`;
+}
     // Default select first size
     selectedSize = p.sizes?.[0] || 'M';
 
