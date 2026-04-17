@@ -286,8 +286,8 @@ if (imageFiles.length === 0) {
       });
       const data = await res.json();
 
-      if (res.ok && data.product) {
-        showToast(`"${data.product.name}" added successfully!`, 'success');
+      if (res.ok) {
+        showToast(`"${data.name}" added successfully!`, 'success');
         resetForm();
         loadProducts();
       } else {

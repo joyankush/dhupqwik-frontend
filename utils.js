@@ -13,10 +13,14 @@ const API_BASE = "https://dhupqwik-backend.onrender.com";
 function getImageUrl(filename) {
   if (!filename) return null;
 
-  // Convert Windows "\" to "/"
+  // ✅ If already a full URL (Cloudinary), return directly
+  if (filename.startsWith('http')) {
+    return filename;
+  }
+
+  // fallback for local uploads (optional)
   const cleanPath = filename.replace(/\\/g, '/');
 
-  // If already starts with uploads/, don't duplicate
   if (cleanPath.startsWith('uploads/')) {
     return `${API_BASE}/${cleanPath}`;
   }
