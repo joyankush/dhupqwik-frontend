@@ -2,40 +2,20 @@
 //  utils.js — Shared utilities for all DhupQwik pages
 // ============================================================
 
-// ── Config ──────────────────────────────────────────────────
-// This is the address of your backend server.
-// Change this if your backend runs on a different port.
-
 const API_BASE = "https://dhupqwik-backend.onrender.com";
-// ── Image URL helper ─────────────────────────────────────────
-// Converts a stored filename into a full URL
-// e.g. "123-shirt.jpg" → "http://localhost:5000/uploads/123-shirt.jpg"
+
 function getImageUrl(filename) {
   if (!filename) return null;
-
-  // ✅ If already a full URL (Cloudinary), return directly
-  if (filename.startsWith('http')) {
-    return filename;
-  }
-
-  // fallback for local uploads (optional)
+  if (filename.startsWith('http')) return filename;
   const cleanPath = filename.replace(/\\/g, '/');
-
-  if (cleanPath.startsWith('uploads/')) {
-    return `${API_BASE}/${cleanPath}`;
-  }
-
+  if (cleanPath.startsWith('uploads/')) return `${API_BASE}/${cleanPath}`;
   return `${API_BASE}/uploads/${cleanPath}`;
 }
 
-// ── Format price ──────────────────────────────────────────────
-// e.g. 1500 → "₹1,500"
 function formatPrice(amount) {
   return '₹' + Number(amount).toLocaleString('en-IN');
 }
 
-// ── Format date ───────────────────────────────────────────────
-// e.g. "2024-06-12T10:30:00Z" → "12 Jun 2024, 10:30 AM"
 function formatDate(dateString) {
   const d = new Date(dateString);
   return d.toLocaleString('en-IN', {
@@ -44,65 +24,48 @@ function formatDate(dateString) {
   });
 }
 
-// ── Toast notification ────────────────────────────────────────
-// Shows a small popup message at the bottom right
-// type: 'success' | 'error' | '' (default dark)
 function showToast(message, type = '') {
-  // Remove any existing toast
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
-
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = message;
   document.body.appendChild(toast);
-
-  // Trigger animation
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => toast.classList.add('show'));
-  });
-
-  // Auto-remove after 3 seconds
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
 
-// ── Cart (stored in localStorage) ────────────────────────────
-// Cart is an array of objects:
-// { productId, name, price, image, size, quantity }
-
 function getCart() {
-  try {
-    return JSON.parse(localStorage.getItem('dq_cart') || '[]');
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem('dq_cart') || '[]'); }
+  catch { return []; }
 }
 
 function saveCart(cart) {
   localStorage.setItem('dq_cart', JSON.stringify(cart));
-  updateCartCount(); // update header badge
+  updateCartCount();
 }
 
 function addToCart(product, size, quantity = 1) {
   const cart = getCart();
-  // Check if same product + size already in cart
-  const existing = cart.find(
-    item => item.productId === product._id && item.size === size
-  );
+  const existing = cart.find(item => item.productId === product._id && item.size === size);
 
   if (existing) {
     existing.quantity += quantity;
   } else {
+    // ✅ FIX: products now use images[] array — save first image for cart display
+    // Fall back to product.image for any old products that still have single image
+    const cartImage = product.images?.[0] || product.image || null;
+
     cart.push({
       productId: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      size: size,
-      quantity: quantity
+      name:      product.name,
+      price:     product.price,
+      image:     cartImage,
+      size:      size,
+      quantity:  quantity
     });
   }
 
@@ -111,10 +74,7 @@ function addToCart(product, size, quantity = 1) {
 }
 
 function removeFromCart(productId, size) {
-  const cart = getCart().filter(
-    item => !(item.productId === productId && item.size === size)
-  );
-  saveCart(cart);
+  saveCart(getCart().filter(item => !(item.productId === productId && item.size === size)));
 }
 
 function updateCartItemQty(productId, size, newQty) {
@@ -145,59 +105,38 @@ function updateCartCount() {
   if (badge) badge.textContent = getCartCount();
 }
 
-// ── Customer session ──────────────────────────────────────────
-// Stores the phone number after login
+function getCustomerPhone() { return localStorage.getItem('dq_phone') || null; }
+function setCustomerPhone(phone) { localStorage.setItem('dq_phone', phone); }
+function logoutCustomer() { localStorage.removeItem('dq_phone'); }
 
-function getCustomerPhone() {
-  return localStorage.getItem('dq_phone') || null;
-}
-
-function setCustomerPhone(phone) {
-  localStorage.setItem('dq_phone', phone);
-}
-
-function logoutCustomer() {
-  localStorage.removeItem('dq_phone');
-}
-
-// ── Status badge helper ───────────────────────────────────────
 function statusBadgeHTML(status) {
   const cls = status.replace(/\s+/g, '-');
   const icons = {
-    'pending':          '🕐',
-    'confirmed':        '✅',
-    'out for delivery': '🚴',
-    'delivered':        '📦',
-    'cancelled':        '❌'
+    'pending': '🕐', 'confirmed': '✅',
+    'out for delivery': '🚴', 'delivered': '📦', 'cancelled': '❌'
   };
-  const icon = icons[status] || '📋';
-  return `<span class="status-badge status-${cls}">${icon} ${status}</span>`;
+  return `<span class="status-badge status-${cls}">${icons[status] || '📋'} ${status}</span>`;
 }
 
-// ── Run on every page load ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
 
-  // Highlight active nav link
   const currentPage = window.location.pathname.split('/').pop();
   document.querySelectorAll('.nav-links a').forEach(link => {
-    if (link.getAttribute('href') === currentPage) {
-      link.classList.add('active');
-    }
+    if (link.getAttribute('href') === currentPage) link.classList.add('active');
   });
 
-  // Show phone in nav if logged in
-  const phone = getCustomerPhone();
-  const loginBtn = document.getElementById('nav-login-btn');
+  const phone     = getCustomerPhone();
+  const loginBtn  = document.getElementById('nav-login-btn');
   const logoutBtn = document.getElementById('nav-logout-btn');
-  const navPhone = document.getElementById('nav-phone');
+  const navPhone  = document.getElementById('nav-phone');
 
   if (phone) {
-    if (loginBtn)  loginBtn.style.display = 'none';
+    if (loginBtn)  loginBtn.style.display  = 'none';
     if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-    if (navPhone)  navPhone.textContent = phone;
+    if (navPhone)  navPhone.textContent    = phone;
   } else {
-    if (loginBtn)  loginBtn.style.display = 'inline-flex';
+    if (loginBtn)  loginBtn.style.display  = 'inline-flex';
     if (logoutBtn) logoutBtn.style.display = 'none';
   }
 

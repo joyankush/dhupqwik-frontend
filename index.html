@@ -6,7 +6,6 @@
   <title>DhupQwik — Shop Clothes</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── Hero Section ──────────────────────────────────────── */
     .hero {
       background: linear-gradient(135deg, #1a1208 0%, #3d2b1a 60%, #5c3d20 100%);
       color: var(--white);
@@ -35,102 +34,55 @@
       margin-bottom: 20px;
       border: 1px solid rgba(232,98,42,0.4);
     }
-    .hero h1 {
-      color: var(--white);
-      font-size: clamp(36px, 6vw, 58px);
-      margin-bottom: 16px;
-      line-height: 1.1;
-    }
+    .hero h1 { color: var(--white); font-size: clamp(36px, 6vw, 58px); margin-bottom: 16px; line-height: 1.1; }
     .hero h1 em { color: var(--saffron-lt); font-style: normal; }
-    .hero p {
-      color: rgba(255,255,255,0.65);
-      font-size: 16px;
-      margin-bottom: 32px;
-    }
+    .hero p { color: rgba(255,255,255,0.65); font-size: 16px; margin-bottom: 32px; }
     .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .hero-btn-main {
-      background: var(--saffron);
-      color: white;
-      padding: 14px 32px;
-      border-radius: var(--radius);
-      font-weight: 600;
-      font-size: 15px;
-      transition: var(--transition);
+      background: var(--saffron); color: white; padding: 14px 32px;
+      border-radius: var(--radius); font-weight: 600; font-size: 15px; transition: var(--transition);
     }
     .hero-btn-main:hover { background: var(--saffron-dk); transform: translateY(-2px); }
     .hero-btn-secondary {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      padding: 14px 28px;
-      border-radius: var(--radius);
-      font-weight: 500;
-      font-size: 15px;
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: var(--transition);
+      background: rgba(255,255,255,0.1); color: white; padding: 14px 28px;
+      border-radius: var(--radius); font-weight: 500; font-size: 15px;
+      border: 1px solid rgba(255,255,255,0.2); transition: var(--transition);
     }
     .hero-btn-secondary:hover { background: rgba(255,255,255,0.18); }
 
-    /* ── Products Section ──────────────────────────────────── */
     .section-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 12px;
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
     }
     .section-header h2 { font-size: clamp(22px, 3vw, 30px); }
     .product-count { color: var(--ink-muted); font-size: 14px; }
 
-    /* Search bar */
-    .search-wrap {
-      margin-bottom: 32px;
-    }
-    .search-input-wrap {
-      position: relative;
-      max-width: 420px;
-    }
+    .search-wrap { margin-bottom: 32px; }
+    .search-input-wrap { position: relative; max-width: 420px; }
     .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-      pointer-events: none;
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); font-size: 16px; pointer-events: none;
     }
     .search-input-wrap input {
-      width: 100%;
-      padding: 12px 16px 12px 42px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 15px;
-      background: var(--white);
-      outline: none;
-      transition: var(--transition);
+      width: 100%; padding: 12px 16px 12px 42px;
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 15px; background: var(--white); outline: none; transition: var(--transition);
     }
     .search-input-wrap input:focus {
-      border-color: var(--saffron);
-      box-shadow: 0 0 0 3px rgba(232,98,42,0.12);
+      border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(232,98,42,0.12);
     }
   </style>
 </head>
 <body>
 
-<!-- ═══ HEADER ══════════════════════════════════════════════ -->
 <header class="site-header">
   <nav class="nav-inner">
     <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
-
     <div class="nav-links">
       <a href="orders.html">My Orders</a>
-
-      <!-- Shown when NOT logged in -->
       <a href="#" id="nav-login-btn" onclick="openLoginModal(); return false;">Login</a>
-
-      <!-- Shown when logged in -->
       <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
       <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
-
       <a href="cart.html" class="cart-btn">
         🛒 Cart <span class="cart-count" id="cart-count">0</span>
       </a>
@@ -138,7 +90,6 @@
   </nav>
 </header>
 
-<!-- ═══ HERO ═════════════════════════════════════════════════ -->
 <section class="hero">
   <div class="hero-content">
     <div class="hero-tagline">Free Home Delivery · Dhupguri & Nearby</div>
@@ -151,19 +102,12 @@
   </div>
 </section>
 
-<!-- ═══ PRODUCTS ═════════════════════════════════════════════ -->
 <div class="page-container" id="products">
-
-  <!-- Search -->
   <div class="search-wrap">
     <div class="search-input-wrap">
       <span class="search-icon">🔍</span>
-      <input
-        type="text"
-        id="search-input"
-        placeholder="Search clothes..."
-        oninput="filterProducts(this.value)"
-      />
+      <input type="text" id="search-input" placeholder="Search clothes..."
+        oninput="filterProducts(this.value)"/>
     </div>
   </div>
 
@@ -172,31 +116,24 @@
     <span class="product-count" id="product-count"></span>
   </div>
 
-  <!-- Loading state -->
   <div class="loading-wrap" id="loading">
     <div class="spinner"></div>
     <p style="color:var(--ink-muted); margin-top:8px;">Loading products...</p>
   </div>
 
-  <!-- Product grid — filled by JavaScript -->
   <div class="products-grid" id="products-grid" style="display:none;"></div>
 
-  <!-- Empty state (shown when no products) -->
   <div class="empty-state" id="empty-state" style="display:none;">
     <div class="empty-state-icon">👕</div>
     <h3>No products yet</h3>
     <p>The store is being stocked. Check back soon!</p>
   </div>
-
 </div>
 
-<!-- ═══ FOOTER ════════════════════════════════════════════════ -->
 <footer class="site-footer">
-  <strong>DhupQwik</strong> — Local Clothing Store · Cash on Delivery Only · 
-  Made with ❤️ in Dhupguri
+  <strong>DhupQwik</strong> — Local Clothing Store · Cash on Delivery Only · Made with ❤️ in Dhupguri
 </footer>
 
-<!-- ═══ LOGIN MODAL ══════════════════════════════════════════ -->
 <div class="modal-overlay" id="login-modal">
   <div class="modal-box">
     <h2 class="modal-title">Login with Phone</h2>
@@ -206,13 +143,8 @@
     </p>
     <div class="form-group">
       <label class="form-label">Mobile Number</label>
-      <input
-        type="tel"
-        class="form-input"
-        id="login-phone"
-        placeholder="e.g. 9876543210"
-        maxlength="10"
-      />
+      <input type="tel" class="form-input" id="login-phone"
+        placeholder="e.g. 9876543210" maxlength="10"/>
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-primary" style="flex:1;" onclick="doLogin()">Continue →</button>
@@ -223,34 +155,30 @@
 
 <script src="utils.js"></script>
 <script>
-  // ── All products from DB (kept in memory for search) ──────
   let allProducts = [];
 
-  // ── Load products from backend ────────────────────────────
   async function loadProducts() {
     try {
       const res = await fetch(`${API_BASE}/products`);
       const data = await res.json();
-      allProducts = Array.isArray(data) ? data : data.products || []; 
+      allProducts = Array.isArray(data) ? data : (data.products || []);
       renderProducts(allProducts);
     } catch (err) {
       document.getElementById('loading').innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">⚠️</div>
           <h3>Cannot connect to server</h3>
-          <p>Make sure your backend is running on port 5000.<br/>
-          Run: <code>npm run dev</code> in your backend folder.</p>
+          <p>Make sure your backend is running.</p>
         </div>
       `;
     }
   }
 
-  // ── Render products into the grid ─────────────────────────
   function renderProducts(products) {
-    const loading   = document.getElementById('loading');
-    const grid      = document.getElementById('products-grid');
+    const loading    = document.getElementById('loading');
+    const grid       = document.getElementById('products-grid');
     const emptyState = document.getElementById('empty-state');
-    const countEl   = document.getElementById('product-count');
+    const countEl    = document.getElementById('product-count');
 
     loading.style.display = 'none';
 
@@ -266,9 +194,15 @@
     grid.style.display = 'grid';
 
     grid.innerHTML = products.map(product => {
-      const imgUrl = getImageUrl(product.image);
+      // ✅ FIX: products now store images[] array, not image string
+      // Use first image from array, fall back to old single image field
+      const firstImage = product.images?.[0] || product.image || null;
+      const imgUrl = getImageUrl(firstImage);
+
       const imgHTML = imgUrl
-        ? `<img class="product-card-img" src="${imgUrl}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/><div class="product-card-img-placeholder" style="display:none;">👕</div>`
+        ? `<img class="product-card-img" src="${imgUrl}" alt="${product.name}" loading="lazy"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+           <div class="product-card-img-placeholder" style="display:none;">👕</div>`
         : `<div class="product-card-img-placeholder">👕</div>`;
 
       return `
@@ -290,7 +224,6 @@
     }).join('');
   }
 
-  // ── Search filter ─────────────────────────────────────────
   function filterProducts(query) {
     const q = query.toLowerCase().trim();
     if (!q) return renderProducts(allProducts);
@@ -301,21 +234,18 @@
     renderProducts(filtered);
   }
 
-  // ── Navigate to product detail page ───────────────────────
   function goToProduct(id) {
     window.location.href = `product.html?id=${id}`;
   }
 
-  // ── Quick add to cart (default size M, qty 1) ─────────────
   function quickAddToCart(event, productId) {
-    event.stopPropagation(); // don't navigate to product page
+    event.stopPropagation();
     const product = allProducts.find(p => p._id === productId);
     if (!product) return;
     const size = product.sizes?.includes('M') ? 'M' : (product.sizes?.[0] || 'M');
     addToCart(product, size, 1);
   }
 
-  // ── Login modal ───────────────────────────────────────────
   function openLoginModal() {
     document.getElementById('login-modal').classList.add('open');
     setTimeout(() => document.getElementById('login-phone').focus(), 100);
@@ -328,8 +258,7 @@
   async function doLogin() {
     const phone = document.getElementById('login-phone').value.trim();
     if (!/^[6-9]\d{9}$/.test(phone)) {
-      showToast('Enter a valid 10-digit mobile number', 'error');
-      return;
+      showToast('Enter a valid 10-digit mobile number', 'error'); return;
     }
     try {
       const res = await fetch(`${API_BASE}/auth/customer-login`, {
@@ -351,19 +280,14 @@
     }
   }
 
-  // ── Close modal when clicking backdrop ───────────────────
   document.getElementById('login-modal').addEventListener('click', function(e) {
     if (e.target === this) closeLoginModal();
   });
-
-  // ── Allow pressing Enter in phone input ──────────────────
   document.getElementById('login-phone').addEventListener('keydown', e => {
     if (e.key === 'Enter') doLogin();
   });
 
-  // ── Start ─────────────────────────────────────────────────
   loadProducts();
 </script>
-
 </body>
 </html>
