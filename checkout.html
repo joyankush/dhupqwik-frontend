@@ -14,9 +14,8 @@
     }
     @media (max-width: 800px) {
       .checkout-layout { grid-template-columns: 1fr; }
-      .order-summary-col { order: -1; } /* Show summary first on mobile */
+      .order-summary-col { order: -1; }
     }
-
     .checkout-card {
       background: var(--white);
       border: 1px solid var(--border);
@@ -29,8 +28,6 @@
       padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
-
-    /* Order summary */
     .summary-item {
       display: flex;
       justify-content: space-between;
@@ -41,18 +38,10 @@
       gap: 12px;
     }
     .summary-item:last-of-type { border-bottom: none; }
-    .summary-item-name {
-      flex: 1;
-      font-weight: 500;
-      min-width: 0;
-    }
-    .summary-item-meta {
-      font-size: 12px;
-      color: var(--ink-muted);
-    }
+    .summary-item-name { flex: 1; font-weight: 500; }
+    .summary-item-meta { font-size: 12px; color: var(--ink-muted); }
     .summary-item-price { font-weight: 600; color: var(--saffron); white-space: nowrap; }
     .summary-item-price::before { content: '₹'; font-size: 11px; }
-
     .summary-total-row {
       display: flex;
       justify-content: space-between;
@@ -65,28 +54,52 @@
     .summary-total-row span:last-child { color: var(--saffron); }
     .summary-total-row span:last-child::before { content: '₹'; font-size: 13px; }
 
-    /* COD notice */
-    .cod-notice {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      font-size: 13px;
-      color: #856404;
-      margin-top: 16px;
+    /* ── Payment Method Selector ───────────────────────────── */
+    .payment-options {
       display: flex;
-      gap: 10px;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .payment-option {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .payment-option:hover { border-color: var(--saffron); }
+    .payment-option.selected {
+      border-color: var(--saffron);
+      background: #fff8f5;
+    }
+    .payment-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--saffron);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .payment-option-icon { font-size: 22px; }
+    .payment-option-info {}
+    .payment-option-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .payment-option-desc {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 2px;
     }
 
     /* Success screen */
-    .success-screen {
-      text-align: center;
-      padding: 60px 24px;
-    }
+    .success-screen { text-align: center; padding: 60px 24px; }
     .success-icon {
-      font-size: 72px;
-      margin-bottom: 20px;
+      font-size: 72px; margin-bottom: 20px;
       animation: popIn 0.5s cubic-bezier(0.4,0,0.2,1);
     }
     @keyframes popIn {
@@ -96,15 +109,10 @@
     .success-screen h2 { font-size: 32px; margin-bottom: 12px; }
     .success-screen p  { color: var(--ink-muted); font-size: 16px; max-width: 420px; margin: 0 auto 32px; }
     .success-order-id {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 24px;
-      font-family: monospace;
-      font-size: 14px;
-      color: var(--ink-soft);
-      display: inline-block;
-      margin-bottom: 32px;
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 24px;
+      font-family: monospace; font-size: 14px; color: var(--ink-soft);
+      display: inline-block; margin-bottom: 32px;
     }
     .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   </style>
@@ -116,7 +124,7 @@
     <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
     <div class="nav-links">
       <a href="index.html">Shop</a>
-      <a href="orders.html"data-show-mobile>My Orders</a>
+      <a href="orders.html" data-show-mobile>My Orders</a>
       <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
       <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
       <a href="cart.html" class="cart-btn">
@@ -128,11 +136,11 @@
 
 <div class="page-container">
 
-  <!-- ── SUCCESS SCREEN (shown after order placed) ────────── -->
+  <!-- SUCCESS SCREEN -->
   <div id="success-screen" class="success-screen" style="display:none;">
-    <div class="success-icon">🎉</div>
-    <h2>Order Placed!</h2>
-    <p>Thank you! Your order has been received. We'll confirm it shortly. Pay cash when it arrives.</p>
+    <div class="success-icon" id="success-icon">🎉</div>
+    <h2 id="success-title">Order Placed!</h2>
+    <p id="success-msg">Thank you! Your order has been received. We'll confirm it shortly.</p>
     <div class="success-order-id" id="success-order-id"></div>
     <div class="success-actions">
       <a href="orders.html" class="btn btn-primary btn-lg">Track My Order →</a>
@@ -140,7 +148,7 @@
     </div>
   </div>
 
-  <!-- ── EMPTY CART WARNING ────────────────────────────────── -->
+  <!-- EMPTY CART -->
   <div class="empty-state" id="empty-warning" style="display:none;">
     <div class="empty-state-icon">🛒</div>
     <h3>Your cart is empty</h3>
@@ -148,55 +156,55 @@
     <a href="index.html" class="btn btn-primary">Browse Products</a>
   </div>
 
-  <!-- ── CHECKOUT FORM ─────────────────────────────────────── -->
+  <!-- CHECKOUT FORM -->
   <div id="checkout-content">
     <h1 class="page-title">Checkout</h1>
     <p class="page-subtitle">Fill in your details and we'll deliver to your door.</p>
 
     <div class="checkout-layout">
 
-      <!-- Left: Delivery Form -->
+      <!-- Left: Form -->
       <div class="checkout-card">
         <h2 class="checkout-card-title">📍 Delivery Details</h2>
 
         <div class="form-group">
           <label class="form-label">Full Name *</label>
-          <input type="text" class="form-input" id="customer-name"
-            placeholder="e.g. Rahul Das" />
+          <input type="text" class="form-input" id="customer-name" placeholder="e.g. Rahul Das"/>
         </div>
-
         <div class="form-group">
           <label class="form-label">Mobile Number *</label>
           <input type="tel" class="form-input" id="customer-phone"
-            placeholder="e.g. 9876543210" maxlength="10" />
-          <small style="color:var(--ink-muted); font-size:12px; margin-top:4px; display:block;">
-            We'll update you about your delivery on this number.
-          </small>
+            placeholder="e.g. 9876543210" maxlength="10"/>
         </div>
-
         <div class="form-group">
           <label class="form-label">Delivery Address *</label>
           <textarea class="form-input" id="customer-address" rows="3"
             placeholder="House/Flat No., Street, Area, City, PIN Code"></textarea>
         </div>
-
         <div class="form-group">
           <label class="form-label">Order Note (optional)</label>
           <input type="text" class="form-input" id="order-note"
-            placeholder="e.g. Call before delivery" />
+            placeholder="e.g. Call before delivery"/>
         </div>
 
-        <div class="cod-notice">
-          💵 <strong>Cash on Delivery only.</strong>&nbsp; No online payment required. Pay cash when your order arrives.
+        <!-- Payment Options — shown/hidden based on settings -->
+        <div class="form-group">
+          <label class="form-label">Payment Method *</label>
+          <div class="payment-options" id="payment-options">
+            <!-- Filled by JS based on what admin has enabled -->
+            <div style="text-align:center; color:var(--ink-muted); padding:20px;">
+              Loading payment options...
+            </div>
+          </div>
         </div>
 
-        <button class="btn btn-primary btn-full btn-lg" style="margin-top:24px;"
-          id="place-order-btn" onclick="placeOrder()">
+        <button class="btn btn-primary btn-full btn-lg" id="place-order-btn"
+          onclick="handlePlaceOrder()">
           Place Order →
         </button>
       </div>
 
-      <!-- Right: Order Summary -->
+      <!-- Right: Summary -->
       <div class="order-summary-col">
         <div class="checkout-card">
           <h2 class="checkout-card-title">🛒 Your Order</h2>
@@ -210,21 +218,22 @@
 
     </div>
   </div>
-
 </div>
 
 <footer class="site-footer">
-  <strong>DhupQwik</strong> — Cash on Delivery Only · Made by Joy
+  <strong>DhupQwik</strong> — Made with ❤️ in Dhupguri
 </footer>
 
+<!-- Razorpay checkout script — loads the payment widget -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="utils.js"></script>
 <script>
-  // ── Pre-fill phone from session ───────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
+  let storeSettings = null;
+  let selectedPayment = null; // 'cod' or 'online'
+
+  document.addEventListener('DOMContentLoaded', async () => {
     const phone = getCustomerPhone();
-    if (phone) {
-      document.getElementById('customer-phone').value = phone;
-    }
+    if (phone) document.getElementById('customer-phone').value = phone;
 
     const cart = getCart();
     if (cart.length === 0) {
@@ -234,10 +243,80 @@
     }
 
     renderOrderSummary(cart);
+    await loadSettings();
   });
 
+  // ── Load settings to know which payment methods are enabled ──
+  async function loadSettings() {
+    try {
+      const res  = await fetch(`${API_BASE}/settings`);
+      storeSettings = await res.json();
+    } catch {
+      // If settings fail, default to both enabled
+      storeSettings = { codEnabled: true, onlinePaymentEnabled: true };
+    }
+    renderPaymentOptions();
+  }
+
+  // ── Render payment options based on what admin enabled ──────
+  function renderPaymentOptions() {
+    const container = document.getElementById('payment-options');
+    const { codEnabled, onlinePaymentEnabled } = storeSettings;
+
+    let html = '';
+
+    if (onlinePaymentEnabled) {
+      html += `
+        <div class="payment-option" id="opt-online" onclick="selectPayment('online')">
+          <input type="radio" name="payment" value="online" id="radio-online"/>
+          <div class="payment-option-icon">💳</div>
+          <div class="payment-option-info">
+            <div class="payment-option-title">Pay Online</div>
+            <div class="payment-option-desc">UPI, Cards, Net Banking, Wallets — Powered by Razorpay</div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (codEnabled) {
+      html += `
+        <div class="payment-option" id="opt-cod" onclick="selectPayment('cod')">
+          <input type="radio" name="payment" value="cod" id="radio-cod"/>
+          <div class="payment-option-icon">💵</div>
+          <div class="payment-option-info">
+            <div class="payment-option-title">Cash on Delivery</div>
+            <div class="payment-option-desc">Pay cash when your order arrives at your door</div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (!html) {
+      html = '<p style="color:var(--red);">No payment methods available. Please contact the store.</p>';
+    }
+
+    container.innerHTML = html;
+
+    // Auto-select online if available, else COD
+    if (onlinePaymentEnabled) selectPayment('online');
+    else if (codEnabled) selectPayment('cod');
+  }
+
+  function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    const radio = document.getElementById(`radio-${method}`);
+    const opt   = document.getElementById(`opt-${method}`);
+    if (radio) radio.checked = true;
+    if (opt)   opt.classList.add('selected');
+
+    // Update button text
+    const btn = document.getElementById('place-order-btn');
+    btn.textContent = method === 'online' ? 'Pay Now →' : 'Place Order →';
+  }
+
   function renderOrderSummary(cart) {
-    const total = getCartTotal();
+    const total   = getCartTotal();
     const itemsEl = document.getElementById('order-summary-items');
     itemsEl.innerHTML = cart.map(item => `
       <div class="summary-item">
@@ -248,54 +327,64 @@
         <div class="summary-item-price">${(item.price * item.quantity).toLocaleString('en-IN')}</div>
       </div>
     `).join('');
-    document.getElementById('order-total').textContent =
-      total.toLocaleString('en-IN');
+    document.getElementById('order-total').textContent = total.toLocaleString('en-IN');
   }
 
-  // ── Place Order ───────────────────────────────────────────
-  async function placeOrder() {
+  // ── Validate form fields ──────────────────────────────────
+  function validateForm() {
+    const name    = document.getElementById('customer-name').value.trim();
+    const phone   = document.getElementById('customer-phone').value.trim();
+    const address = document.getElementById('customer-address').value.trim();
+
+    if (!name) {
+      showToast('Please enter your name', 'error');
+      document.getElementById('customer-name').focus(); return false;
+    }
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      showToast('Enter a valid 10-digit mobile number', 'error');
+      document.getElementById('customer-phone').focus(); return false;
+    }
+    if (!address || address.length < 10) {
+      showToast('Please enter your full delivery address', 'error');
+      document.getElementById('customer-address').focus(); return false;
+    }
+    if (!selectedPayment) {
+      showToast('Please select a payment method', 'error'); return false;
+    }
+    return true;
+  }
+
+  // ── Main handler — routes to COD or Online ────────────────
+  function handlePlaceOrder() {
+    if (!validateForm()) return;
+    if (selectedPayment === 'online') startRazorpayPayment();
+    else placeCODOrder();
+  }
+
+  // ── COD Order — same as before ────────────────────────────
+  async function placeCODOrder() {
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Placing order...';
+
     const name    = document.getElementById('customer-name').value.trim();
     const phone   = document.getElementById('customer-phone').value.trim();
     const address = document.getElementById('customer-address').value.trim();
     const note    = document.getElementById('order-note').value.trim();
     const cart    = getCart();
 
-    console.log("CART DATA:", cart);
-    // Validate
-    if (!name) {
-      showToast('Please enter your name', 'error');
-      document.getElementById('customer-name').focus(); return;
-    }
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-      showToast('Enter a valid 10-digit mobile number', 'error');
-      document.getElementById('customer-phone').focus(); return;
-    }
-    if (!address || address.length < 10) {
-      showToast('Please enter your full delivery address', 'error');
-      document.getElementById('customer-address').focus(); return;
-    }
-    if (cart.length === 0) {
-      showToast('Your cart is empty', 'error'); return;
-    }
-
-    // Disable button to prevent double-click
-    const btn = document.getElementById('place-order-btn');
-    btn.disabled = true;
-    btn.textContent = 'Placing order...';
-
     try {
       const res = await fetch(`${API_BASE}/orders`, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerName: name,
-          phone,
-          address,
+          phone, address,
           orderNote: note,
           items: cart.map(item => ({
             productId: item.productId,
-            quantity: item.quantity,
-            size: item.size
+            quantity:  item.quantity,
+            size:      item.size
           })),
           totalPrice: getCartTotal()
         })
@@ -304,26 +393,147 @@
       const data = await res.json();
 
       if (res.ok) {
-        // Save phone for future visits
         setCustomerPhone(phone);
-        // Clear cart
         clearCart();
-        // Show success screen
-        document.getElementById('checkout-content').style.display = 'none';
-        document.getElementById('success-screen').style.display = 'block';
-        document.getElementById('success-order-id').textContent =
-          'Order ID: ' + (data._id || data.order?._id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showSuccess(
+          '🎉',
+          'Order Placed!',
+          'Your order has been received. Pay cash when it arrives.',
+          data._id || data.order?._id
+        );
       } else {
         showToast(data.message || 'Failed to place order', 'error');
         btn.disabled = false;
         btn.textContent = 'Place Order →';
       }
-    } catch (err) {
-      showToast('Cannot reach server. Check if backend is running.', 'error');
+    } catch {
+      showToast('Cannot reach server', 'error');
       btn.disabled = false;
       btn.textContent = 'Place Order →';
     }
+  }
+
+  // ── Online Payment via Razorpay ───────────────────────────
+  async function startRazorpayPayment() {
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Opening payment...';
+
+    const name    = document.getElementById('customer-name').value.trim();
+    const phone   = document.getElementById('customer-phone').value.trim();
+    const address = document.getElementById('customer-address').value.trim();
+    const note    = document.getElementById('order-note').value.trim();
+    const cart    = getCart();
+    const total   = getCartTotal();
+
+    try {
+      // Step 1: Create a Razorpay order on our backend
+      const res  = await fetch(`${API_BASE}/payment/create-order`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: total })
+      });
+      const data = await res.json();
+
+      if (!data.razorpayOrderId) {
+        showToast('Payment setup failed. Try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Pay Now →';
+        return;
+      }
+
+      // Step 2: Open Razorpay payment widget
+      const options = {
+        key:         data.keyId,
+        amount:      data.amount,
+        currency:    data.currency,
+        order_id:    data.razorpayOrderId,
+        name:        'DhupQwik',
+        description: `Order of ${cart.length} item(s)`,
+
+        // Pre-fill customer details
+        prefill: {
+          name:    name,
+          contact: phone
+        },
+
+        theme: { color: '#e8622a' }, // saffron brand color
+
+        // ── Called when payment is SUCCESSFUL ────────────────
+        handler: async function(response) {
+          btn.textContent = 'Verifying payment...';
+
+          // Step 3: Verify payment on our backend and save order
+          const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature,
+              customerName: name,
+              phone, address,
+              orderNote: note,
+              items: cart.map(item => ({
+                productId: item.productId,
+                name:      item.name,
+                price:     item.price,
+                quantity:  item.quantity,
+                size:      item.size,
+                image:     item.image || ''
+              })),
+              totalPrice: total
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            setCustomerPhone(phone);
+            clearCart();
+            showSuccess(
+              '✅',
+              'Payment Successful!',
+              `Payment confirmed. Order ID saved. Pay nothing at delivery.`,
+              verifyData.order._id
+            );
+          } else {
+            showToast('Payment verification failed. Contact support.', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Pay Now →';
+          }
+        },
+
+        // ── Called when customer closes/cancels payment ───────
+        modal: {
+          ondismiss: function() {
+            showToast('Payment cancelled', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Pay Now →';
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      showToast('Payment failed. Try again.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Pay Now →';
+    }
+  }
+
+  // ── Show success screen ────────────────────────────────────
+  function showSuccess(icon, title, msg, orderId) {
+    document.getElementById('checkout-content').style.display = 'none';
+    document.getElementById('success-screen').style.display  = 'block';
+    document.getElementById('success-icon').textContent  = icon;
+    document.getElementById('success-title').textContent = title;
+    document.getElementById('success-msg').textContent   = msg;
+    document.getElementById('success-order-id').textContent =
+      orderId ? 'Order ID: ' + orderId : '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 </body>
