@@ -25,9 +25,14 @@
 
     /* ── Image Gallery ─────────────────────────────────────── */
     .gallery {
-      position: sticky;
-      top: 80px;
-    }
+  position: sticky;
+  top: 80px;
+}
+@media (max-width: 720px) {
+  .gallery {
+    position: static; /* ✅ removes sticky on mobile so page scrolls normally */
+  }
+}
 
     /* ✅ FIX: Main image fills the container fully, no empty space */
     .gallery-main {
