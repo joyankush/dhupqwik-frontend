@@ -3,277 +3,219 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#07070f"/>
   <title>My Orders — DhupQwik</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    /* Phone login prompt */
-    .phone-prompt {
-      max-width: 420px;
-      margin: 60px auto;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 36px;
-      text-align: center;
+    /* Phone prompt */
+    .phone-prompt{
+      max-width:380px;margin:40px auto;
+      background:var(--card);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:32px 24px;text-align:center;
     }
-    .phone-prompt-icon { font-size: 48px; margin-bottom: 16px; }
-    .phone-prompt h2 { font-size: 22px; margin-bottom: 8px; }
-    .phone-prompt p  { color: var(--ink-muted); font-size: 14px; margin-bottom: 24px; }
-    .phone-input-row {
-      display: flex;
-      gap: 10px;
-    }
-    .phone-input-row input { flex: 1; }
+    .phone-prompt-icon{font-size:44px;margin-bottom:14px;}
+    .phone-prompt h2{font-size:20px;font-weight:700;margin-bottom:8px;}
+    .phone-prompt p{font-size:13px;color:var(--text-soft);margin-bottom:22px;}
+    .phone-row{display:flex;gap:10px;}
+    .phone-row input{flex:1;}
 
     /* Orders list */
-    .orders-list { display: flex; flex-direction: column; gap: 20px; }
+    .orders-list{display:flex;flex-direction:column;gap:14px;}
 
-    .order-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
+    .order-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r-lg);
+      overflow:hidden;
+      animation:fadeUp 0.35s ease both;
     }
-    .order-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      gap: 10px;
+    .order-card-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;gap:8px;
     }
-    .order-id {
-      font-size: 12px;
-      font-family: monospace;
-      color: var(--ink-muted);
-      background: var(--paper);
-      padding: 3px 10px;
-      border-radius: 6px;
+    .order-id{
+      font-size:11px;font-family:monospace;
+      color:var(--text-muted);
+      background:var(--surface2);
+      padding:3px 10px;border-radius:var(--r-full);
     }
-    .order-date { font-size: 13px; color: var(--ink-muted); }
+    .order-date{font-size:12px;color:var(--text-muted);}
 
-    .order-card-body { padding: 20px; }
+    /* Status tracker */
+    .tracker{
+      display:flex;align-items:flex-start;
+      padding:16px 16px 8px;
+      gap:0;overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .tracker::-webkit-scrollbar{display:none;}
+    .t-step{
+      display:flex;flex-direction:column;align-items:center;
+      gap:5px;flex:1;min-width:64px;position:relative;
+    }
+    .t-step:not(:last-child)::after{
+      content:'';position:absolute;
+      top:12px;left:50%;width:100%;height:2px;
+      background:var(--surface3);z-index:0;
+    }
+    .t-step.done:not(:last-child)::after{background:var(--teal);}
+    .t-dot{
+      width:26px;height:26px;border-radius:50%;
+      border:2px solid var(--surface3);
+      background:var(--card);
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;z-index:1;transition:var(--t);
+    }
+    .t-step.done .t-dot{background:var(--teal);border-color:var(--teal);}
+    .t-step.current .t-dot{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow);}
+    .t-label{
+      font-size:9px;color:var(--text-muted);
+      text-align:center;font-weight:500;white-space:nowrap;
+    }
+    .t-step.done .t-label,.t-step.current .t-label{color:var(--teal);font-weight:600;}
 
-    /* Status progress tracker */
-    .status-tracker {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      padding-bottom: 4px;
+    /* Items */
+    .order-items{padding:14px 16px 0;}
+    .order-items-title{
+      font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:0.6px;
+      color:var(--text-muted);margin-bottom:10px;
     }
-    .tracker-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-      min-width: 70px;
-      position: relative;
+    .order-item-row{
+      display:flex;justify-content:space-between;
+      align-items:center;font-size:13px;gap:12px;
+      padding:6px 0;border-bottom:1px solid var(--border);
     }
-    .tracker-step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 14px;
-      left: 50%;
-      width: 100%;
-      height: 2px;
-      background: var(--border);
-      z-index: 0;
-    }
-    .tracker-step.done:not(:last-child)::after { background: var(--saffron); }
-    .tracker-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      background: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      z-index: 1;
-      transition: var(--transition);
-    }
-    .tracker-step.done .tracker-dot {
-      background: var(--saffron);
-      border-color: var(--saffron);
-      color: white;
-    }
-    .tracker-step.current .tracker-dot {
-      border-color: var(--saffron);
-      box-shadow: 0 0 0 3px rgba(232,98,42,0.2);
-    }
-    .tracker-label {
-      font-size: 10px;
-      color: var(--ink-muted);
-      text-align: center;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .tracker-step.done .tracker-label,
-    .tracker-step.current .tracker-label { color: var(--saffron); font-weight: 600; }
+    .order-item-row:last-child{border-bottom:none;}
+    .order-item-name{flex:1;font-weight:500;}
+    .order-item-meta{font-size:11px;color:var(--text-muted);}
+    .order-item-price{font-weight:600;color:var(--teal);white-space:nowrap;}
+    .order-item-price::before{content:'₹';font-size:10px;}
 
-    /* Order items */
-    .order-items-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
+    /* Footer of order card */
+    .order-card-foot{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 16px;
+      background:var(--surface);
+      border-top:1px solid var(--border);
+      flex-wrap:wrap;gap:8px;
     }
-    .order-items-list { display: flex; flex-direction: column; gap: 8px; }
-    .order-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      gap: 12px;
-    }
-    .order-item-name { flex: 1; font-weight: 500; }
-    .order-item-meta { color: var(--ink-muted); font-size: 12px; }
-    .order-item-subtotal { font-weight: 600; color: var(--saffron); white-space: nowrap; }
-    .order-item-subtotal::before { content: '₹'; font-size: 11px; }
+    .order-total{font-size:15px;font-weight:700;}
+    .order-total span{color:var(--teal);}
+    .order-addr{font-size:11px;color:var(--text-muted);max-width:240px;}
 
-    .order-card-footer {
-      padding: 14px 20px;
-      background: var(--paper);
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
+    /* Top row */
+    .orders-top-row{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:20px;flex-wrap:wrap;gap:10px;
     }
-    .order-total-text { font-size: 16px; font-weight: 700; }
-    .order-total-text span { color: var(--saffron); }
-    .order-address { font-size: 12px; color: var(--ink-muted); max-width: 300px; }
-
-    /* Refresh button */
-    .refresh-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 10px;
+    .viewing-label{font-size:13px;color:var(--text-soft);}
+    .change-phone-btn{
+      font-size:12px;color:var(--teal);
+      padding:6px 14px;border-radius:var(--r-full);
+      border:1px solid var(--border-teal);transition:var(--t);
     }
-    .change-phone-btn {
-      font-size: 13px;
-      color: var(--saffron);
-      padding: 6px 12px;
-      border-radius: var(--radius);
-      border: 1px solid var(--saffron);
-      transition: var(--transition);
-    }
-    .change-phone-btn:hover { background: var(--saffron); color: white; }
+    .change-phone-btn:hover{background:var(--teal-glow);}
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <nav class="nav-inner">
-    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
-    <div class="nav-links">
-      <a href="index.html">Shop</a>
-      <a href="orders.html" class="active" data-show-mobile >My Orders</a>
-      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
-      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
-      <a href="cart.html" class="cart-btn">
-        🛒 Cart <span class="cart-count" id="cart-count">0</span>
-      </a>
-    </div>
-  </nav>
+  <div class="nav-logo"><span class="accent">Dhup</span>Qwik</div>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn">🛒
+      <span class="nav-badge" data-cart-count>0</span>
+    </a>
+  </div>
 </header>
 
+<div class="page-body">
 <div class="page-container">
-  <h1 class="page-title">My Orders</h1>
-  <p class="page-subtitle">Track all your past and current orders.</p>
 
-  <!-- ── Phone prompt (if not logged in) ──────────────────── -->
+  <div style="padding:16px 0 8px;">
+    <h1 class="page-title">My Orders</h1>
+    <p class="page-sub">Track your past and current orders.</p>
+  </div>
+
+  <!-- Phone prompt -->
   <div id="phone-prompt" style="display:none;">
-    <div class="phone-prompt">
+    <div class="phone-prompt fade-up">
       <div class="phone-prompt-icon">📱</div>
-      <h2>Enter Your Mobile Number</h2>
-      <p>We'll show all orders linked to your number.</p>
-      <div class="phone-input-row">
+      <h2>Enter Your Number</h2>
+      <p>We'll show all orders linked to your mobile number.</p>
+      <div class="phone-row">
         <input type="tel" class="form-input" id="prompt-phone"
           placeholder="10-digit mobile number" maxlength="10"/>
-        <button class="btn btn-primary" onclick="loadOrdersByPhone()">
-          View Orders
-        </button>
+        <button class="btn btn-primary" onclick="loadByPhone()">View</button>
       </div>
     </div>
   </div>
 
-  <!-- ── Orders list ───────────────────────────────────────── -->
+  <!-- Orders section -->
   <div id="orders-section" style="display:none;">
-
-    <div class="refresh-row">
-      <div style="font-size:14px; color:var(--ink-muted);" id="viewing-label"></div>
-      <button class="change-phone-btn" onclick="changePhone()">
-        Change Number
-      </button>
+    <div class="orders-top-row">
+      <div class="viewing-label" id="viewing-label"></div>
+      <button class="change-phone-btn" onclick="changePhone()">Change Number</button>
     </div>
 
-    <!-- Loading -->
     <div class="loading-wrap" id="orders-loading" style="display:none;">
       <div class="spinner"></div>
-      <p style="color:var(--ink-muted); margin-top:8px;">Loading your orders...</p>
     </div>
 
-    <!-- Empty -->
     <div class="empty-state" id="orders-empty" style="display:none;">
       <div class="empty-state-icon">📭</div>
       <h3>No orders found</h3>
-      <p>You haven't placed any orders with this number yet.</p>
+      <p>You haven't placed any orders with this number.</p>
       <a href="index.html" class="btn btn-primary">Start Shopping</a>
     </div>
 
-    <!-- List -->
     <div class="orders-list" id="orders-list"></div>
   </div>
 
 </div>
+</div>
 
 <footer class="site-footer">
-  <strong>DhupQwik</strong> — Cash on Delivery Only · Made by Joy
+  <strong>DhupQwik</strong> · <span class="credit">Built by <a href="#">Joyankush Roy</a></span>
 </footer>
+
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item" data-page="index.html">
+    <span class="bnav-icon">🏠</span><span>Home</span>
+  </a>
+  <a href="orders.html" class="bnav-item active" data-page="orders.html">
+    <span class="bnav-icon">📦</span><span>Orders</span>
+  </a>
+  <a href="cart.html" class="bnav-item" data-page="cart.html">
+    <span class="bnav-icon" style="position:relative;">🛒
+      <span class="bnav-badge" data-cart-count>0</span>
+    </span><span>Cart</span>
+  </a>
+</nav>
 
 <script src="utils.js"></script>
 <script>
-  // ── Status tracker config ─────────────────────────────────
-  const STATUS_STEPS = [
-    { key: 'pending',          label: 'Pending',      icon: '🕐' },
-    { key: 'confirmed',        label: 'Confirmed',    icon: '✅' },
-    { key: 'out for delivery', label: 'On the Way',   icon: '🚴' },
-    { key: 'delivered',        label: 'Delivered',    icon: '📦' },
+  const STEPS = [
+    { key:'pending',          label:'Pending',  icon:'🕐' },
+    { key:'confirmed',        label:'Confirmed',icon:'✅' },
+    { key:'out for delivery', label:'On Way',   icon:'🚴' },
+    { key:'delivered',        label:'Delivered',icon:'📦' }
   ];
 
-  function getStepIndex(status) {
-    if (status === 'cancelled') return -1;
-    return STATUS_STEPS.findIndex(s => s.key === status);
-  }
-
-  function buildTrackerHTML(status) {
-    if (status === 'cancelled') {
-      return `<div style="padding:12px 0; color:var(--red); font-weight:600; font-size:14px;">
-        ❌ This order was cancelled.
-      </div>`;
-    }
-    const currentIndex = getStepIndex(status);
+  function buildTracker(status) {
+    if (status === 'cancelled') return `<div style="padding:12px 16px;color:var(--red);font-size:13px;font-weight:600;">❌ This order was cancelled.</div>`;
+    const idx = STEPS.findIndex(s => s.key === status);
     return `
-      <div class="status-tracker">
-        ${STATUS_STEPS.map((step, i) => {
-          const done = i <= currentIndex;
-          const current = i === currentIndex;
+      <div class="tracker">
+        ${STEPS.map((s, i) => {
+          const done    = i <= idx;
+          const current = i === idx;
           return `
-            <div class="tracker-step ${done ? 'done' : ''} ${current ? 'current' : ''}">
-              <div class="tracker-dot">${done ? step.icon : ''}</div>
-              <div class="tracker-label">${step.label}</div>
+            <div class="t-step ${done?'done':''} ${current?'current':''}">
+              <div class="t-dot">${done ? s.icon : ''}</div>
+              <div class="t-label">${s.label}</div>
             </div>
           `;
         }).join('')}
@@ -281,119 +223,98 @@
     `;
   }
 
-  // ── Render one order card ─────────────────────────────────
   function buildOrderCard(order) {
     const items = order.items || [];
     const itemsHTML = items.map(item => `
       <div class="order-item-row">
         <div>
           <span class="order-item-name">${item.name}</span>
-          <span class="order-item-meta"> · Size: ${item.size} · Qty: ${item.quantity}</span>
+          <span class="order-item-meta"> · ${item.size} · ×${item.quantity}</span>
         </div>
-        <div class="order-item-subtotal">${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+        <div class="order-item-price">${(item.price*item.quantity).toLocaleString('en-IN')}</div>
       </div>
     `).join('');
 
     return `
       <div class="order-card">
-        <div class="order-card-header">
+        <div class="order-card-head">
           <div>
-            <div class="order-id"># ${order._id}</div>
+            <div class="order-id">#${order._id.slice(-8).toUpperCase()}</div>
             <div class="order-date" style="margin-top:4px;">📅 ${formatDate(order.createdAt)}</div>
           </div>
           ${statusBadgeHTML(order.status)}
         </div>
-
-        <div class="order-card-body">
-          ${buildTrackerHTML(order.status)}
+        ${buildTracker(order.status)}
+        <div class="order-items">
           <div class="order-items-title">Items Ordered</div>
-          <div class="order-items-list">${itemsHTML}</div>
+          ${itemsHTML}
         </div>
-
-        <div class="order-card-footer">
+        <div class="order-card-foot">
           <div>
-            <div class="order-total-text">
-              Total: <span>₹${(order.totalPrice || 0).toLocaleString('en-IN')}</span>
-              &nbsp;· <span style="font-size:13px; font-weight:400; color:var(--ink-muted);">Cash on Delivery</span>
-            </div>
-            <div class="order-address">📍 ${order.address}</div>
+            <div class="order-total">Total: <span>₹${(order.totalPrice||0).toLocaleString('en-IN')}</span></div>
+            <div class="order-addr">📍 ${order.address}</div>
           </div>
+          <span style="font-size:11px;color:var(--text-muted);">
+            ${order.paymentMethod==='Online Payment'?'💳 Paid Online':'💵 COD'}
+          </span>
         </div>
       </div>
     `;
   }
 
-  // ── Load orders from backend ──────────────────────────────
   async function fetchOrders(phone) {
     document.getElementById('orders-loading').style.display = 'block';
-    document.getElementById('orders-empty').style.display = 'none';
-    document.getElementById('orders-list').innerHTML = '';
-
+    document.getElementById('orders-empty').style.display   = 'none';
+    document.getElementById('orders-list').innerHTML        = '';
     try {
-      const res = await fetch(`${API_BASE}/orders/phone/${phone}`);
+      const res  = await fetch(`${API_BASE}/orders/phone/${phone}`);
       const data = await res.json();
-      const orders = data.orders || data; // handle both formats
-
+      const orders = Array.isArray(data) ? data : (data.orders || []);
       document.getElementById('orders-loading').style.display = 'none';
-
       if (!orders || orders.length === 0) {
         document.getElementById('orders-empty').style.display = 'block';
         return;
       }
-
-      document.getElementById('orders-list').innerHTML =
-        orders.map(buildOrderCard).join('');
-
+      document.getElementById('orders-list').innerHTML = orders.map(buildOrderCard).join('');
     } catch {
       document.getElementById('orders-loading').style.display = 'none';
       document.getElementById('orders-empty').innerHTML = `
         <div class="empty-state-icon">⚠️</div>
-        <h3>Cannot connect to server</h3>
-        <p>Make sure your backend is running.</p>
+        <h3>Cannot connect</h3><p>Make sure the backend is running.</p>
       `;
       document.getElementById('orders-empty').style.display = 'block';
     }
   }
 
-  // ── Phone prompt ──────────────────────────────────────────
-  function loadOrdersByPhone() {
+  function loadByPhone() {
     const phone = document.getElementById('prompt-phone').value.trim();
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-      showToast('Enter a valid 10-digit mobile number', 'error'); return;
-    }
+    if (!/^[6-9]\d{9}$/.test(phone)) { showToast('Enter a valid 10-digit number', 'error'); return; }
     setCustomerPhone(phone);
     showOrdersFor(phone);
   }
 
   function showOrdersFor(phone) {
-    document.getElementById('phone-prompt').style.display = 'none';
+    document.getElementById('phone-prompt').style.display  = 'none';
     document.getElementById('orders-section').style.display = 'block';
-    document.getElementById('viewing-label').textContent =
-      `Showing orders for 📱 ${phone}`;
+    document.getElementById('viewing-label').textContent   = `📱 ${phone}`;
     fetchOrders(phone);
   }
 
   function changePhone() {
     logoutCustomer();
     document.getElementById('orders-section').style.display = 'none';
-    document.getElementById('phone-prompt').style.display = 'block';
-    document.getElementById('prompt-phone').value = '';
-    window.location.reload();
+    document.getElementById('phone-prompt').style.display   = 'block';
+    document.getElementById('prompt-phone').value           = '';
   }
 
-  // ── Allow pressing Enter in phone input ──────────────────
   document.getElementById('prompt-phone')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') loadOrdersByPhone();
+    if (e.key === 'Enter') loadByPhone();
   });
 
-  // ── Init ──────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
-    const savedPhone = getCustomerPhone();
-    if (savedPhone) {
-      showOrdersFor(savedPhone);
-    } else {
-      document.getElementById('phone-prompt').style.display = 'block';
-    }
+    const phone = getCustomerPhone();
+    if (phone) showOrdersFor(phone);
+    else document.getElementById('phone-prompt').style.display = 'block';
   });
 </script>
 </body>

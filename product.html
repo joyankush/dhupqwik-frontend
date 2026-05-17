@@ -3,178 +3,224 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#07070f"/>
   <title>Product — DhupQwik</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    .back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: var(--ink-muted); font-size: 14px; margin-bottom: 32px;
-      transition: var(--transition);
+    /* Gallery */
+    .gallery-main{
+      position:relative;
+      width:100%;
+      aspect-ratio:3/4;
+      background:var(--surface3);
+      border-radius:var(--r-lg);
+      overflow:hidden;
+      border:1px solid var(--border);
     }
-    .back-link:hover { color: var(--saffron); }
+    #main-img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center top;
+      transition:opacity 0.2s;
+    }
+    .gallery-thumbs{
+      display:flex;gap:8px;
+      overflow-x:auto;padding:8px 0 4px;
+      scrollbar-width:none;
+    }
+    .gallery-thumbs::-webkit-scrollbar{display:none;}
+    .g-thumb{
+      flex-shrink:0;
+      width:60px;height:75px;
+      border-radius:var(--r-sm);
+      overflow:hidden;
+      border:2px solid transparent;
+      cursor:pointer;
+      transition:var(--t);
+      background:var(--surface3);
+    }
+    .g-thumb img{width:100%;height:100%;object-fit:cover;}
+    .g-thumb.active{border-color:var(--teal);}
 
-    .product-detail {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 56px;
-      align-items: start;
+    /* Product info */
+    .product-info{padding:20px 0;}
+    .p-cat{
+      display:inline-block;
+      font-size:10px;font-weight:600;
+      text-transform:uppercase;letter-spacing:1px;
+      color:var(--teal);
+      background:var(--teal-glow);
+      border:1px solid var(--border-teal);
+      padding:3px 10px;border-radius:var(--r-full);
+      margin-bottom:10px;
     }
-    @media (max-width: 720px) {
-      .product-detail { grid-template-columns: 1fr; gap: 28px; }
+    .p-name{font-size:clamp(20px,5vw,28px);font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .p-price{
+      font-size:28px;font-weight:700;
+      color:var(--teal);margin-bottom:6px;
     }
+    .p-price::before{content:'₹';font-size:18px;}
+    .p-cod{
+      display:inline-flex;align-items:center;gap:5px;
+      background:rgba(16,185,129,0.1);
+      border:1px solid rgba(16,185,129,0.25);
+      color:var(--green);
+      font-size:11px;font-weight:600;
+      padding:4px 12px;border-radius:var(--r-full);
+      margin-bottom:20px;
+    }
+    .p-desc{font-size:14px;color:var(--text-soft);line-height:1.7;margin-bottom:24px;}
 
-    /* ── Image Gallery ─────────────────────────────────────── */
-    .gallery {
-  position: sticky;
-  top: 80px;
-}
-@media (max-width: 720px) {
-  .gallery {
-    position: static; /* ✅ removes sticky on mobile so page scrolls normally */
-  }
-}
+    /* Size */
+    .p-section-label{
+      font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:0.7px;
+      color:var(--text-muted);margin-bottom:10px;
+    }
+    .sizes-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+    .size-btn{
+      min-width:46px;height:46px;padding:0 12px;
+      border-radius:var(--r-md);
+      border:1.5px solid var(--border2);
+      font-size:13px;font-weight:600;
+      color:var(--text-soft);background:var(--surface2);
+      cursor:pointer;transition:var(--t);
+    }
+    .size-btn:hover{border-color:var(--teal);color:var(--teal);}
+    .size-btn.selected{background:var(--teal);border-color:var(--teal);color:var(--bg);}
+    .size-btn:active{transform:scale(0.92);}
 
-    /* ✅ FIX: Main image fills the container fully, no empty space */
-    .gallery-main {
-      width: 100%;
-      aspect-ratio: 3/4;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      background: var(--paper);
-      border: 1px solid var(--border);
+    /* Quantity */
+    .qty-row{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+    .qty-controls{
+      display:flex;align-items:center;
+      background:var(--surface2);
+      border:1.5px solid var(--border);
+      border-radius:var(--r-full);
+      overflow:hidden;
     }
-    .gallery-main img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;    /* fills the box, crops neatly — no empty space */
-      object-position: center top; /* shows face/top of garment first */
-      display: block;
-      transition: opacity 0.25s;
+    .qty-btn{
+      width:42px;height:42px;
+      font-size:18px;font-weight:600;
+      color:var(--text);transition:var(--t);
+      background:transparent;
     }
-    .gallery-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 80px;
-      color: var(--border);
-    }
-
-    /* ✅ FIX: Thumbnail strip — fixed square thumbnails, no overflow issues */
-    .gallery-thumbs {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: thin;
-    }
-    .gallery-thumb-wrap {
-      flex-shrink: 0;
-      width: 68px;
-      height: 85px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: var(--transition);
-      background: var(--paper);
-    }
-    .gallery-thumb-wrap:hover { border-color: var(--saffron); }
-    .gallery-thumb-wrap.active { border-color: var(--saffron); }
-    .gallery-thumb-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* ── Product Info ───────────────────────────────────────── */
-    .product-category {
-      display: inline-block; background: var(--paper); color: var(--ink-muted);
-      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
-      text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
-    }
-    .product-name { font-size: clamp(26px, 4vw, 38px); margin-bottom: 12px; line-height: 1.15; }
-    .product-detail-price {
-      font-size: 32px; font-weight: 700; color: var(--saffron); margin-bottom: 4px;
-    }
-    .product-detail-price::before { content: '₹'; font-size: 20px; }
-    .cod-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #d4edda; color: #155724; font-size: 12px; font-weight: 600;
-      padding: 4px 12px; border-radius: 20px; margin-bottom: 24px;
-    }
-    .product-divider { height: 1px; background: var(--border); margin: 24px 0; }
-    .product-desc { color: var(--ink-soft); font-size: 15px; line-height: 1.7; margin-bottom: 28px; }
-
-    .size-label {
-      font-size: 13px; font-weight: 600; color: var(--ink-soft);
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
-    }
-    .sizes-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
-    .size-btn {
-      width: 48px; height: 48px; border-radius: var(--radius);
-      border: 1.5px solid var(--border); font-size: 14px; font-weight: 600;
-      color: var(--ink-soft); background: var(--white); cursor: pointer; transition: var(--transition);
-    }
-    .size-btn:hover { border-color: var(--saffron); color: var(--saffron); }
-    .size-btn.selected { background: var(--saffron); border-color: var(--saffron); color: var(--white); }
-
-    .qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-    .qty-label { font-size: 13px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; }
-    .qty-controls {
-      display: flex; align-items: center;
-      border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden;
-    }
-    .qty-btn {
-      width: 40px; height: 40px; background: var(--paper);
-      color: var(--ink); font-size: 18px; font-weight: 500; transition: var(--transition);
-    }
-    .qty-btn:hover { background: var(--border); }
-    .qty-value {
-      width: 48px; text-align: center; font-size: 16px; font-weight: 600;
-      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
-      height: 40px; display: grid; place-items: center;
+    .qty-btn:hover{background:var(--surface3);color:var(--teal);}
+    .qty-btn:active{transform:scale(0.88);}
+    .qty-val{
+      width:44px;text-align:center;
+      font-size:15px;font-weight:700;
+      border-left:1px solid var(--border);
+      border-right:1px solid var(--border);
     }
 
-    .action-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-    .action-btns .btn { flex: 1; min-width: 140px; }
+    /* Sticky bottom bar */
+    .sticky-bar{
+      position:sticky;
+      bottom:calc(var(--bnav-h) + 0px);
+      left:0;right:0;
+      background:rgba(7,7,15,0.95);
+      backdrop-filter:blur(16px);
+      border-top:1px solid var(--border);
+      padding:12px 16px;
+      display:flex;gap:10px;
+      z-index:50;
+    }
+    .sticky-bar .btn{flex:1;}
+
+    @media(min-width:640px){
+      .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+      .sticky-bar{position:static;background:transparent;border:none;padding:0;backdrop-filter:none;}
+    }
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <nav class="nav-inner">
-    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
-    <div class="nav-links">
-      <a href="orders.html"data-show-mobile>My Orders</a>
-      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
-      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
-      <a href="cart.html" class="cart-btn">
-        🛒 Cart <span class="cart-count" id="cart-count">0</span>
-      </a>
-    </div>
-  </nav>
+  <a href="index.html" style="font-size:20px;margin-right:8px;">←</a>
+  <div class="nav-logo"><span class="accent">Dhup</span>Qwik</div>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn">🛒
+      <span class="nav-badge" data-cart-count>0</span>
+    </a>
+  </div>
 </header>
 
+<div class="page-body">
 <div class="page-container">
-  <a href="index.html" class="back-link">← Back to Shop</a>
 
   <div class="loading-wrap" id="loading"><div class="spinner"></div></div>
-  <div id="product-detail" style="display:none;" class="product-detail"></div>
+
+  <div id="product-wrap" style="display:none;">
+    <div class="product-layout">
+
+      <!-- Gallery -->
+      <div class="fade-up">
+        <div class="gallery-main">
+          <img id="main-img" src="" alt="product"/>
+        </div>
+        <div class="gallery-thumbs" id="gallery-thumbs"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="product-info fade-up-1">
+        <div class="p-cat">👔 Clothes</div>
+        <h1 class="p-name" id="p-name">—</h1>
+        <div class="p-price" id="p-price">—</div>
+        <div class="p-cod">✅ Cash on Delivery</div>
+        <div class="divider"></div>
+        <p class="p-desc" id="p-desc">—</p>
+
+        <div class="p-section-label">Select Size</div>
+        <div class="sizes-row" id="sizes-row"></div>
+
+        <div class="qty-row">
+          <span class="p-section-label" style="margin:0;">Quantity</span>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <div class="qty-val" id="qty-val">1</div>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+
+        <div id="stock-info"></div>
+      </div>
+    </div>
+
+    <!-- Sticky buy bar -->
+    <div class="sticky-bar">
+      <button class="btn btn-outline" onclick="handleAddToCart()">🛒 Add to Cart</button>
+      <button class="btn btn-primary" onclick="handleBuyNow()">Buy Now →</button>
+    </div>
+  </div>
+
   <div class="empty-state" id="error-state" style="display:none;">
     <div class="empty-state-icon">⚠️</div>
     <h3>Product not found</h3>
     <p>This product may no longer be available.</p>
     <a href="index.html" class="btn btn-primary">Back to Shop</a>
   </div>
+
+</div>
 </div>
 
 <footer class="site-footer">
-  <strong>DhupQwik</strong> — Cash on Delivery Only · Made by joyankush
+  <strong>DhupQwik</strong> — Cash on Delivery
+  <br/><span class="credit">Built with ❤️ by <a href="#">Joyankush Roy</a></span>
 </footer>
+
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item" data-page="index.html">
+    <span class="bnav-icon">🏠</span><span>Home</span>
+  </a>
+  <a href="orders.html" class="bnav-item" data-page="orders.html">
+    <span class="bnav-icon">📦</span><span>Orders</span>
+  </a>
+  <a href="cart.html" class="bnav-item" data-page="cart.html">
+    <span class="bnav-icon" style="position:relative;">🛒
+      <span class="bnav-badge" data-cart-count>0</span>
+    </span><span>Cart</span>
+  </a>
+</nav>
 
 <script src="utils.js"></script>
 <script>
@@ -194,115 +240,77 @@
     try {
       const res  = await fetch(`${API_BASE}/products/${id}`);
       const data = await res.json();
-      if (data && data._id) {
-        currentProduct = data;
-        renderProduct(data);
-      } else {
-        showError();
-      }
+      if (data && data._id) { currentProduct = data; renderProduct(data); }
+      else showError();
     } catch { showError(); }
   }
 
   function renderProduct(p) {
     document.title = `${p.name} — DhupQwik`;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('product-detail').style.display = 'grid';
 
-    // Support both old single image and new images array
-    images = (p.images && p.images.length > 0)
-      ? p.images
-      : (p.image ? [p.image] : []);
+    // Images — support both images[] and legacy image
+    images = p.images?.length ? p.images : (p.image ? [p.image] : []);
 
-    selectedSize = p.sizes?.[0] || 'M';
-    currentIdx   = 0;
-
-    const sizesHTML = (p.sizes || ['S','M','L','XL']).map(s => `
-      <button class="size-btn ${s === selectedSize ? 'selected' : ''}"
-        onclick="selectSize('${s}')" id="size-${s}">${s}</button>
-    `).join('');
-
-    // ✅ FIX: Gallery uses proper CSS classes, no inline max-width override
-    const mainImgHTML = images.length > 0
-      ? `<img id="main-img" src="${images[0]}" alt="${p.name}"/>`
-      : `<div class="gallery-placeholder">👕</div>`;
-
-    const thumbsHTML = images.length > 1
-      ? `<div class="gallery-thumbs">
-          ${images.map((url, i) => `
-            <div class="gallery-thumb-wrap ${i === 0 ? 'active' : ''}"
-              onclick="switchImage(${i})" id="thumb-${i}">
-              <img src="${url}" alt="view ${i + 1}"/>
-            </div>
-          `).join('')}
-        </div>`
-      : '';
-
-    document.getElementById('product-detail').innerHTML = `
-      <div class="gallery">
-        <div class="gallery-main">${mainImgHTML}</div>
-        ${thumbsHTML}
-      </div>
-
-      <div>
-        <span class="product-category">👔 Clothes</span>
-        <h1 class="product-name">${p.name}</h1>
-        <div class="product-detail-price">${p.price.toLocaleString('en-IN')}</div>
-        <div class="cod-badge">💵 Cash on Delivery</div>
-        <div class="product-divider"></div>
-        <p class="product-desc">${p.description}</p>
-
-        <div class="size-label">Select Size</div>
-        <div class="sizes-row">${sizesHTML}</div>
-
-        <div class="qty-row">
-          <span class="qty-label">Qty</span>
-          <div class="qty-controls">
-            <button class="qty-btn" onclick="changeQty(-1)">−</button>
-            <div class="qty-value" id="qty-display">1</div>
-            <button class="qty-btn" onclick="changeQty(1)">+</button>
-          </div>
-        </div>
-
-        <div class="action-btns">
-          <button class="btn btn-primary btn-lg" onclick="handleAddToCart()">
-            🛒 Add to Cart
-          </button>
-          <button class="btn btn-outline btn-lg" onclick="handleBuyNow()">
-            Buy Now
-          </button>
-        </div>
-
-        ${p.stock > 0 ? `<p style="margin-top:16px;font-size:13px;color:var(--green);">✅ ${p.stock} in stock</p>` : ''}
-      </div>
-    `;
-  }
-
-  // ✅ Switch main image on thumbnail click
-  function switchImage(index) {
-    currentIdx = index;
+    // Main image
     const mainImg = document.getElementById('main-img');
-    if (mainImg) {
-      mainImg.style.opacity = '0';
-      setTimeout(() => {
-        mainImg.src = images[index];
-        mainImg.style.opacity = '1';
-      }, 150);
+    if (images.length > 0) {
+      mainImg.src = images[0];
+      mainImg.onerror = () => { mainImg.style.display = 'none'; };
+    } else {
+      mainImg.style.display = 'none';
     }
-    // Update active thumbnail border
-    document.querySelectorAll('.gallery-thumb-wrap').forEach((t, i) => {
-      t.classList.toggle('active', i === index);
-    });
+
+    // Thumbnails
+    const thumbsEl = document.getElementById('gallery-thumbs');
+    if (images.length > 1) {
+      thumbsEl.innerHTML = images.map((url, i) => `
+        <div class="g-thumb ${i===0?'active':''}" id="thumb-${i}" onclick="switchImg(${i})">
+          <img src="${url}" alt="view ${i+1}" loading="lazy"/>
+        </div>
+      `).join('');
+    }
+
+    // Info
+    document.getElementById('p-name').textContent  = p.name;
+    document.getElementById('p-price').textContent = p.price.toLocaleString('en-IN');
+    document.getElementById('p-desc').textContent  = p.description;
+
+    // Sizes
+    selectedSize = p.sizes?.[0] || 'M';
+    document.getElementById('sizes-row').innerHTML =
+      (p.sizes || ['S','M','L','XL']).map(s => `
+        <button class="size-btn ${s===selectedSize?'selected':''}"
+          onclick="selectSize('${s}')" id="sz-${s}">${s}</button>
+      `).join('');
+
+    // Stock
+    if (p.stock > 0) {
+      document.getElementById('stock-info').innerHTML =
+        `<p style="font-size:12px;color:var(--green);margin-bottom:16px;">✅ ${p.stock} in stock</p>`;
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('product-wrap').style.display = 'block';
   }
 
-  function selectSize(size) {
-    selectedSize = size;
+  function switchImg(idx) {
+    currentIdx = idx;
+    const mainImg = document.getElementById('main-img');
+    mainImg.style.opacity = '0';
+    setTimeout(() => { mainImg.src = images[idx]; mainImg.style.opacity = '1'; }, 150);
+    document.querySelectorAll('.g-thumb').forEach((t, i) =>
+      t.classList.toggle('active', i === idx));
+  }
+
+  function selectSize(s) {
+    selectedSize = s;
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById(`size-${size}`)?.classList.add('selected');
+    document.getElementById(`sz-${s}`)?.classList.add('selected');
   }
 
-  function changeQty(delta) {
-    quantity = Math.max(1, Math.min(10, quantity + delta));
-    document.getElementById('qty-display').textContent = quantity;
+  function changeQty(d) {
+    quantity = Math.max(1, Math.min(10, quantity + d));
+    document.getElementById('qty-val').textContent = quantity;
   }
 
   function handleAddToCart() {
@@ -319,6 +327,11 @@
   function showError() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error-state').style.display = 'block';
+  }
+
+  // Fix mobile scroll — remove sticky on mobile
+  if (window.innerWidth < 640) {
+    document.querySelectorAll('.gallery').forEach(g => g.style.position = 'static');
   }
 
   loadProduct();

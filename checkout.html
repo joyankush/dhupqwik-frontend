@@ -3,213 +3,180 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#07070f"/>
   <title>Checkout — DhupQwik</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
-    .checkout-layout {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 32px;
-      align-items: start;
+    .checkout-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--r-lg);
+      padding:20px;
+      margin-bottom:16px;
     }
-    @media (max-width: 800px) {
-      .checkout-layout { grid-template-columns: 1fr; }
-      .order-summary-col { order: -1; }
+    .checkout-card-title{
+      font-size:15px;font-weight:700;
+      margin-bottom:18px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:8px;
     }
-    .checkout-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 28px;
+    .payment-option{
+      border:1.5px solid var(--border);
+      border-radius:var(--r-md);
+      padding:14px 16px;
+      cursor:pointer;
+      transition:var(--t);
+      display:flex;align-items:center;gap:14px;
+      margin-bottom:10px;
     }
-    .checkout-card-title {
-      font-size: 20px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+    .payment-option:hover{border-color:var(--border2);}
+    .payment-option.selected{
+      border-color:var(--teal);
+      background:var(--teal-glow2);
+      box-shadow:0 0 0 1px var(--border-teal);
     }
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-      gap: 12px;
+    .payment-option input[type="radio"]{
+      width:17px;height:17px;
+      accent-color:var(--teal);
+      flex-shrink:0;
     }
-    .summary-item:last-of-type { border-bottom: none; }
-    .summary-item-name { flex: 1; font-weight: 500; }
-    .summary-item-meta { font-size: 12px; color: var(--ink-muted); }
-    .summary-item-price { font-weight: 600; color: var(--saffron); white-space: nowrap; }
-    .summary-item-price::before { content: '₹'; font-size: 11px; }
-    .summary-total-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 18px;
-      font-weight: 700;
-      padding: 16px 0 0;
-      margin-top: 8px;
-      border-top: 2px solid var(--ink);
-    }
-    .summary-total-row span:last-child { color: var(--saffron); }
-    .summary-total-row span:last-child::before { content: '₹'; font-size: 13px; }
+    .pay-icon{font-size:22px;}
+    .pay-title{font-size:14px;font-weight:600;}
+    .pay-desc{font-size:11px;color:var(--text-muted);margin-top:2px;}
 
-    /* ── Payment Method Selector ───────────────────────────── */
-    .payment-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
+    /* Summary items */
+    .sum-item{
+      display:flex;justify-content:space-between;
+      align-items:center;padding:10px 0;
+      border-bottom:1px solid var(--border);
+      font-size:13px;gap:12px;
     }
-    .payment-option {
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 14px;
+    .sum-item:last-of-type{border-bottom:none;}
+    .sum-item-name{flex:1;font-weight:500;}
+    .sum-item-meta{font-size:11px;color:var(--text-muted);}
+    .sum-item-price{font-weight:600;color:var(--teal);white-space:nowrap;}
+    .sum-item-price::before{content:'₹';font-size:10px;}
+    .sum-total{
+      display:flex;justify-content:space-between;
+      font-size:16px;font-weight:700;
+      padding:14px 0 0;margin-top:4px;
+      border-top:1px solid var(--border2);
     }
-    .payment-option:hover { border-color: var(--saffron); }
-    .payment-option.selected {
-      border-color: var(--saffron);
-      background: #fff8f5;
-    }
-    .payment-option input[type="radio"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--saffron);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .payment-option-icon { font-size: 22px; }
-    .payment-option-info {}
-    .payment-option-title {
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--ink);
-    }
-    .payment-option-desc {
-      font-size: 12px;
-      color: var(--ink-muted);
-      margin-top: 2px;
-    }
+    .sum-total span:last-child{color:var(--teal);}
+    .sum-total span:last-child::before{content:'₹';font-size:12px;}
 
-    /* Success screen */
-    .success-screen { text-align: center; padding: 60px 24px; }
-    .success-icon {
-      font-size: 72px; margin-bottom: 20px;
-      animation: popIn 0.5s cubic-bezier(0.4,0,0.2,1);
+    /* Success */
+    .success-screen{text-align:center;padding:48px 20px;}
+    .success-icon{
+      font-size:64px;margin-bottom:16px;
+      animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
     }
-    @keyframes popIn {
-      from { transform: scale(0.5); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
+    @keyframes popIn{
+      from{transform:scale(0.4);opacity:0;}
+      to{transform:scale(1);opacity:1;}
     }
-    .success-screen h2 { font-size: 32px; margin-bottom: 12px; }
-    .success-screen p  { color: var(--ink-muted); font-size: 16px; max-width: 420px; margin: 0 auto 32px; }
-    .success-order-id {
-      background: var(--paper); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 12px 24px;
-      font-family: monospace; font-size: 14px; color: var(--ink-soft);
-      display: inline-block; margin-bottom: 32px;
+    .success-title{font-size:26px;font-weight:700;margin-bottom:10px;}
+    .success-msg{font-size:13px;color:var(--text-soft);max-width:320px;margin:0 auto 20px;line-height:1.6;}
+    .success-id{
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--r-md);padding:10px 20px;
+      font-size:12px;font-family:monospace;
+      color:var(--text-muted);display:inline-block;margin-bottom:24px;
     }
-    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .success-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+
+    @media(min-width:640px){
+      .checkout-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+    }
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <nav class="nav-inner">
-    <a href="index.html" class="nav-logo">Dhup<span>Qwik</span></a>
-    <div class="nav-links">
-      <a href="index.html">Shop</a>
-      <a href="orders.html" data-show-mobile>My Orders</a>
-      <span id="nav-phone" style="font-size:13px; color:var(--ink-muted);"></span>
-      <button id="nav-logout-btn" style="display:none; color:var(--ink-muted); font-size:13px;">Logout</button>
-      <a href="cart.html" class="cart-btn">
-        🛒 Cart <span class="cart-count" id="cart-count">0</span>
-      </a>
-    </div>
-  </nav>
+  <a href="cart.html" style="font-size:20px;margin-right:8px;">←</a>
+  <div class="nav-logo"><span class="accent">Dhup</span>Qwik</div>
+  <div class="nav-actions"></div>
 </header>
 
+<div class="page-body">
 <div class="page-container">
 
-  <!-- SUCCESS SCREEN -->
+  <!-- Success -->
   <div id="success-screen" class="success-screen" style="display:none;">
-    <div class="success-icon" id="success-icon">🎉</div>
-    <h2 id="success-title">Order Placed!</h2>
-    <p id="success-msg">Thank you! Your order has been received. We'll confirm it shortly.</p>
-    <div class="success-order-id" id="success-order-id"></div>
+    <div class="success-icon" id="s-icon">🎉</div>
+    <div class="success-title" id="s-title">Order Placed!</div>
+    <p class="success-msg" id="s-msg">Your order has been received. We'll confirm it shortly.</p>
+    <div class="success-id" id="s-id"></div>
     <div class="success-actions">
-      <a href="orders.html" class="btn btn-primary btn-lg">Track My Order →</a>
-      <a href="index.html" class="btn btn-ghost btn-lg">Continue Shopping</a>
+      <a href="orders.html" class="btn btn-primary">Track Order →</a>
+      <a href="index.html" class="btn btn-ghost">Continue Shopping</a>
     </div>
   </div>
 
-  <!-- EMPTY CART -->
+  <!-- Empty -->
   <div class="empty-state" id="empty-warning" style="display:none;">
     <div class="empty-state-icon">🛒</div>
-    <h3>Your cart is empty</h3>
-    <p>Add items before checking out.</p>
-    <a href="index.html" class="btn btn-primary">Browse Products</a>
+    <h3>Cart is empty</h3>
+    <a href="index.html" class="btn btn-primary" style="margin-top:8px;">Browse Products</a>
   </div>
 
-  <!-- CHECKOUT FORM -->
+  <!-- Checkout -->
   <div id="checkout-content">
-    <h1 class="page-title">Checkout</h1>
-    <p class="page-subtitle">Fill in your details and we'll deliver to your door.</p>
+    <div style="padding:16px 0 8px;">
+      <h1 class="page-title">Checkout</h1>
+      <p class="page-sub">Fill in your details for home delivery.</p>
+    </div>
 
     <div class="checkout-layout">
 
       <!-- Left: Form -->
-      <div class="checkout-card">
-        <h2 class="checkout-card-title">📍 Delivery Details</h2>
+      <div>
+        <div class="checkout-card fade-up">
+          <div class="checkout-card-title">📍 Delivery Details</div>
 
-        <div class="form-group">
-          <label class="form-label">Full Name *</label>
-          <input type="text" class="form-input" id="customer-name" placeholder="e.g. Rahul Das"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Mobile Number *</label>
-          <input type="tel" class="form-input" id="customer-phone"
-            placeholder="e.g. 9876543210" maxlength="10"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Delivery Address *</label>
-          <textarea class="form-input" id="customer-address" rows="3"
-            placeholder="House/Flat No., Street, Area, City, PIN Code"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Order Note (optional)</label>
-          <input type="text" class="form-input" id="order-note"
-            placeholder="e.g. Call before delivery"/>
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-input" id="c-name" placeholder="Your full name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number *</label>
+            <input type="tel" class="form-input" id="c-phone"
+              placeholder="10-digit mobile number" maxlength="10"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delivery Address *</label>
+            <textarea class="form-input" id="c-address" rows="3"
+              placeholder="House/Flat, Street, Area, City, PIN"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Order Note (optional)</label>
+            <input type="text" class="form-input" id="c-note"
+              placeholder="e.g. Call before delivery"/>
+          </div>
         </div>
 
-        <!-- Payment Options — shown/hidden based on settings -->
-        <div class="form-group">
-          <label class="form-label">Payment Method *</label>
-          <div class="payment-options" id="payment-options">
-            <!-- Filled by JS based on what admin has enabled -->
-            <div style="text-align:center; color:var(--ink-muted); padding:20px;">
-              Loading payment options...
+        <div class="checkout-card fade-up-1">
+          <div class="checkout-card-title">💳 Payment Method</div>
+          <div id="payment-options">
+            <div style="text-align:center;color:var(--text-muted);padding:16px;font-size:13px;">
+              Loading options...
             </div>
           </div>
         </div>
 
-        <button class="btn btn-primary btn-full btn-lg" id="place-order-btn"
-          onclick="handlePlaceOrder()">
+        <button class="btn btn-primary btn-full btn-lg fade-up-2"
+          id="place-btn" onclick="handlePlaceOrder()" style="margin-bottom:20px;">
           Place Order →
         </button>
       </div>
 
       <!-- Right: Summary -->
-      <div class="order-summary-col">
+      <div class="fade-up-1">
         <div class="checkout-card">
-          <h2 class="checkout-card-title">🛒 Your Order</h2>
-          <div id="order-summary-items"></div>
-          <div class="summary-total-row">
+          <div class="checkout-card-title">🛒 Your Order</div>
+          <div id="order-items"></div>
+          <div class="sum-total">
             <span>Total to Pay</span>
             <span id="order-total"></span>
           </div>
@@ -218,22 +185,37 @@
 
     </div>
   </div>
+
+</div>
 </div>
 
 <footer class="site-footer">
-  <strong>DhupQwik</strong> — Made with ❤️ in Dhupguri
+  <strong>DhupQwik</strong> · <span class="credit">Built by <a href="#">Joyankush Roy</a></span>
 </footer>
 
-<!-- Razorpay checkout script — loads the payment widget -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item" data-page="index.html">
+    <span class="bnav-icon">🏠</span><span>Home</span>
+  </a>
+  <a href="orders.html" class="bnav-item" data-page="orders.html">
+    <span class="bnav-icon">📦</span><span>Orders</span>
+  </a>
+  <a href="cart.html" class="bnav-item" data-page="cart.html">
+    <span class="bnav-icon" style="position:relative;">🛒
+      <span class="bnav-badge" data-cart-count>0</span>
+    </span><span>Cart</span>
+  </a>
+</nav>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="utils.js"></script>
 <script>
   let storeSettings = null;
-  let selectedPayment = null; // 'cod' or 'online'
+  let selectedPayment = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
     const phone = getCustomerPhone();
-    if (phone) document.getElementById('customer-phone').value = phone;
+    if (phone) document.getElementById('c-phone').value = phone;
 
     const cart = getCart();
     if (cart.length === 0) {
@@ -241,298 +223,184 @@
       document.getElementById('empty-warning').style.display = 'block';
       return;
     }
-
-    renderOrderSummary(cart);
+    renderSummary(cart);
     await loadSettings();
   });
 
-  // ── Load settings to know which payment methods are enabled ──
   async function loadSettings() {
     try {
-      const res  = await fetch(`${API_BASE}/settings`);
+      const res = await fetch(`${API_BASE}/settings`);
       storeSettings = await res.json();
     } catch {
-      // If settings fail, default to both enabled
       storeSettings = { codEnabled: true, onlinePaymentEnabled: true };
     }
     renderPaymentOptions();
   }
 
-  // ── Render payment options based on what admin enabled ──────
   function renderPaymentOptions() {
-    const container = document.getElementById('payment-options');
     const { codEnabled, onlinePaymentEnabled } = storeSettings;
-
     let html = '';
-
     if (onlinePaymentEnabled) {
       html += `
-        <div class="payment-option" id="opt-online" onclick="selectPayment('online')">
-          <input type="radio" name="payment" value="online" id="radio-online"/>
-          <div class="payment-option-icon">💳</div>
-          <div class="payment-option-info">
-            <div class="payment-option-title">Pay Online</div>
-            <div class="payment-option-desc">UPI, Cards, Net Banking, Wallets — Powered by Razorpay</div>
+        <div class="payment-option" id="opt-online" onclick="selectPay('online')">
+          <input type="radio" name="pay" value="online" id="r-online"/>
+          <div class="pay-icon">💳</div>
+          <div>
+            <div class="pay-title">Pay Online</div>
+            <div class="pay-desc">UPI · Cards · Net Banking · Wallets — Razorpay</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
-
     if (codEnabled) {
       html += `
-        <div class="payment-option" id="opt-cod" onclick="selectPayment('cod')">
-          <input type="radio" name="payment" value="cod" id="radio-cod"/>
-          <div class="payment-option-icon">💵</div>
-          <div class="payment-option-info">
-            <div class="payment-option-title">Cash on Delivery</div>
-            <div class="payment-option-desc">Pay cash when your order arrives at your door</div>
+        <div class="payment-option" id="opt-cod" onclick="selectPay('cod')">
+          <input type="radio" name="pay" value="cod" id="r-cod"/>
+          <div class="pay-icon">💵</div>
+          <div>
+            <div class="pay-title">Cash on Delivery</div>
+            <div class="pay-desc">Pay cash when your order arrives</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
-
-    if (!html) {
-      html = '<p style="color:var(--red);">No payment methods available. Please contact the store.</p>';
-    }
-
-    container.innerHTML = html;
-
-    // Auto-select online if available, else COD
-    if (onlinePaymentEnabled) selectPayment('online');
-    else if (codEnabled) selectPayment('cod');
+    if (!html) html = '<p style="color:var(--red);font-size:13px;">No payment methods available.</p>';
+    document.getElementById('payment-options').innerHTML = html;
+    if (onlinePaymentEnabled) selectPay('online');
+    else if (codEnabled) selectPay('cod');
   }
 
-  function selectPayment(method) {
+  function selectPay(method) {
     selectedPayment = method;
     document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
-    const radio = document.getElementById(`radio-${method}`);
-    const opt   = document.getElementById(`opt-${method}`);
-    if (radio) radio.checked = true;
-    if (opt)   opt.classList.add('selected');
-
-    // Update button text
-    const btn = document.getElementById('place-order-btn');
-    btn.textContent = method === 'online' ? 'Pay Now →' : 'Place Order →';
+    document.getElementById(`opt-${method}`)?.classList.add('selected');
+    document.getElementById(`r-${method}`).checked = true;
+    document.getElementById('place-btn').textContent =
+      method === 'online' ? 'Pay Now →' : 'Place Order →';
   }
 
-  function renderOrderSummary(cart) {
-    const total   = getCartTotal();
-    const itemsEl = document.getElementById('order-summary-items');
-    itemsEl.innerHTML = cart.map(item => `
-      <div class="summary-item">
+  function renderSummary(cart) {
+    const total = getCartTotal();
+    document.getElementById('order-items').innerHTML = cart.map(item => `
+      <div class="sum-item">
         <div>
-          <div class="summary-item-name">${item.name}</div>
-          <div class="summary-item-meta">Size: ${item.size} · Qty: ${item.quantity}</div>
+          <div class="sum-item-name">${item.name}</div>
+          <div class="sum-item-meta">Size: ${item.size} · Qty: ${item.quantity}</div>
         </div>
-        <div class="summary-item-price">${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+        <div class="sum-item-price">${(item.price*item.quantity).toLocaleString('en-IN')}</div>
       </div>
     `).join('');
     document.getElementById('order-total').textContent = total.toLocaleString('en-IN');
   }
 
-  // ── Validate form fields ──────────────────────────────────
-  function validateForm() {
-    const name    = document.getElementById('customer-name').value.trim();
-    const phone   = document.getElementById('customer-phone').value.trim();
-    const address = document.getElementById('customer-address').value.trim();
-
-    if (!name) {
-      showToast('Please enter your name', 'error');
-      document.getElementById('customer-name').focus(); return false;
-    }
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-      showToast('Enter a valid 10-digit mobile number', 'error');
-      document.getElementById('customer-phone').focus(); return false;
-    }
-    if (!address || address.length < 10) {
-      showToast('Please enter your full delivery address', 'error');
-      document.getElementById('customer-address').focus(); return false;
-    }
-    if (!selectedPayment) {
-      showToast('Please select a payment method', 'error'); return false;
-    }
+  function validate() {
+    const name    = document.getElementById('c-name').value.trim();
+    const phone   = document.getElementById('c-phone').value.trim();
+    const address = document.getElementById('c-address').value.trim();
+    if (!name)                          { showToast('Please enter your name', 'error'); return false; }
+    if (!/^[6-9]\d{9}$/.test(phone))   { showToast('Enter valid 10-digit mobile number', 'error'); return false; }
+    if (!address || address.length < 10){ showToast('Please enter full delivery address', 'error'); return false; }
+    if (!selectedPayment)               { showToast('Select a payment method', 'error'); return false; }
     return true;
   }
 
-  // ── Main handler — routes to COD or Online ────────────────
   function handlePlaceOrder() {
-    if (!validateForm()) return;
-    if (selectedPayment === 'online') startRazorpayPayment();
-    else placeCODOrder();
+    if (!validate()) return;
+    if (selectedPayment === 'online') startRazorpay();
+    else placeCOD();
   }
 
-  // ── COD Order — same as before ────────────────────────────
-  async function placeCODOrder() {
-    const btn = document.getElementById('place-order-btn');
-    btn.disabled = true;
-    btn.textContent = 'Placing order...';
-
-    const name    = document.getElementById('customer-name').value.trim();
-    const phone   = document.getElementById('customer-phone').value.trim();
-    const address = document.getElementById('customer-address').value.trim();
-    const note    = document.getElementById('order-note').value.trim();
-    const cart    = getCart();
-
+  async function placeCOD() {
+    const btn = document.getElementById('place-btn');
+    btn.disabled = true; btn.textContent = 'Placing order...';
+    const name = document.getElementById('c-name').value.trim();
+    const phone = document.getElementById('c-phone').value.trim();
+    const address = document.getElementById('c-address').value.trim();
+    const note = document.getElementById('c-note').value.trim();
+    const cart = getCart();
     try {
       const res = await fetch(`${API_BASE}/orders`, {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customerName: name,
-          phone, address,
-          orderNote: note,
-          items: cart.map(item => ({
-            productId: item.productId,
-            quantity:  item.quantity,
-            size:      item.size
-          })),
+          customerName: name, phone, address, orderNote: note,
+          items: cart.map(i => ({ productId: i.productId, quantity: i.quantity, size: i.size })),
           totalPrice: getCartTotal()
         })
       });
-
       const data = await res.json();
-
       if (res.ok) {
-        setCustomerPhone(phone);
-        clearCart();
-        showSuccess(
-          '🎉',
-          'Order Placed!',
+        setCustomerPhone(phone); clearCart();
+        showSuccess('🎉', 'Order Placed!',
           'Your order has been received. Pay cash when it arrives.',
-          data._id || data.order?._id
-        );
+          data._id || data.order?._id);
       } else {
         showToast(data.message || 'Failed to place order', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Place Order →';
+        btn.disabled = false; btn.textContent = 'Place Order →';
       }
     } catch {
       showToast('Cannot reach server', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Place Order →';
+      btn.disabled = false; btn.textContent = 'Place Order →';
     }
   }
 
-  // ── Online Payment via Razorpay ───────────────────────────
-  async function startRazorpayPayment() {
-    const btn = document.getElementById('place-order-btn');
-    btn.disabled = true;
-    btn.textContent = 'Opening payment...';
-
-    const name    = document.getElementById('customer-name').value.trim();
-    const phone   = document.getElementById('customer-phone').value.trim();
-    const address = document.getElementById('customer-address').value.trim();
-    const note    = document.getElementById('order-note').value.trim();
-    const cart    = getCart();
-    const total   = getCartTotal();
-
+  async function startRazorpay() {
+    const btn = document.getElementById('place-btn');
+    btn.disabled = true; btn.textContent = 'Opening payment...';
+    const name = document.getElementById('c-name').value.trim();
+    const phone = document.getElementById('c-phone').value.trim();
+    const address = document.getElementById('c-address').value.trim();
+    const note = document.getElementById('c-note').value.trim();
+    const cart = getCart(); const total = getCartTotal();
     try {
-      // Step 1: Create a Razorpay order on our backend
-      const res  = await fetch(`${API_BASE}/payment/create-order`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(`${API_BASE}/payment/create-order`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: total })
       });
       const data = await res.json();
-
-      if (!data.razorpayOrderId) {
-        showToast('Payment setup failed. Try again.', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Pay Now →';
-        return;
-      }
-
-      // Step 2: Open Razorpay payment widget
+      if (!data.razorpayOrderId) { showToast('Payment setup failed. Try again.', 'error'); btn.disabled=false; btn.textContent='Pay Now →'; return; }
       const options = {
-        key:         data.keyId,
-        amount:      data.amount,
-        currency:    data.currency,
-        order_id:    data.razorpayOrderId,
-        name:        'DhupQwik',
+        key: data.keyId, amount: data.amount, currency: data.currency,
+        order_id: data.razorpayOrderId, name: 'DhupQwik',
         description: `Order of ${cart.length} item(s)`,
-
-        // Pre-fill customer details
-        prefill: {
-          name:    name,
-          contact: phone
-        },
-
-        theme: { color: '#e8622a' }, // saffron brand color
-
-        // ── Called when payment is SUCCESSFUL ────────────────
+        prefill: { name, contact: phone },
+        theme: { color: '#00c9b1' },
         handler: async function(response) {
-          btn.textContent = 'Verifying payment...';
-
-          // Step 3: Verify payment on our backend and save order
-          const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
+          btn.textContent = 'Verifying...';
+          const vRes = await fetch(`${API_BASE}/payment/verify`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature:  response.razorpay_signature,
-              customerName: name,
-              phone, address,
-              orderNote: note,
-              items: cart.map(item => ({
-                productId: item.productId,
-                name:      item.name,
-                price:     item.price,
-                quantity:  item.quantity,
-                size:      item.size,
-                image:     item.image || ''
-              })),
+              razorpay_signature: response.razorpay_signature,
+              customerName: name, phone, address, orderNote: note,
+              items: cart.map(i => ({ productId:i.productId, name:i.name, price:i.price, quantity:i.quantity, size:i.size, image:i.image||'' })),
               totalPrice: total
             })
           });
-
-          const verifyData = await verifyRes.json();
-
-          if (verifyData.success) {
-            setCustomerPhone(phone);
-            clearCart();
-            showSuccess(
-              '✅',
-              'Payment Successful!',
-              `Payment confirmed. Order ID saved. Pay nothing at delivery.`,
-              verifyData.order._id
-            );
+          const vData = await vRes.json();
+          if (vData.success) {
+            setCustomerPhone(phone); clearCart();
+            showSuccess('✅', 'Payment Successful!', 'Your order is confirmed. Nothing to pay at delivery.', vData.order._id);
           } else {
-            showToast('Payment verification failed. Contact support.', 'error');
-            btn.disabled = false;
-            btn.textContent = 'Pay Now →';
+            showToast('Payment verification failed.', 'error');
+            btn.disabled=false; btn.textContent='Pay Now →';
           }
         },
-
-        // ── Called when customer closes/cancels payment ───────
-        modal: {
-          ondismiss: function() {
-            showToast('Payment cancelled', 'error');
-            btn.disabled = false;
-            btn.textContent = 'Pay Now →';
-          }
-        }
+        modal: { ondismiss: () => { showToast('Payment cancelled', 'error'); btn.disabled=false; btn.textContent='Pay Now →'; } }
       };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-
-    } catch (err) {
+      new Razorpay(options).open();
+    } catch {
       showToast('Payment failed. Try again.', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Pay Now →';
+      btn.disabled=false; btn.textContent='Pay Now →';
     }
   }
 
-  // ── Show success screen ────────────────────────────────────
-  function showSuccess(icon, title, msg, orderId) {
+  function showSuccess(icon, title, msg, id) {
     document.getElementById('checkout-content').style.display = 'none';
-    document.getElementById('success-screen').style.display  = 'block';
-    document.getElementById('success-icon').textContent  = icon;
-    document.getElementById('success-title').textContent = title;
-    document.getElementById('success-msg').textContent   = msg;
-    document.getElementById('success-order-id').textContent =
-      orderId ? 'Order ID: ' + orderId : '';
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('s-icon').textContent  = icon;
+    document.getElementById('s-title').textContent = title;
+    document.getElementById('s-msg').textContent   = msg;
+    document.getElementById('s-id').textContent    = id ? `Order ID: ${id}` : '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
