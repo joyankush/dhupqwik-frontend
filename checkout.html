@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#07070f"/>
-  <title>Checkout — DhupQwik</title>
+  <title>Checkout — Kartigo</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
     .checkout-card{
@@ -95,7 +95,7 @@
 
 <header class="site-header">
   <a href="cart.html" style="font-size:20px;margin-right:8px;">←</a>
-  <div class="nav-logo"><span class="accent">Dhup</span>Qwik</div>
+  <div class="nav-logo"><span class="accent">Karti</span>go</div>
   <div class="nav-actions"></div>
 </header>
 
@@ -359,7 +359,7 @@
       if (!data.razorpayOrderId) { showToast('Payment setup failed. Try again.', 'error'); btn.disabled=false; btn.textContent='Pay Now →'; return; }
       const options = {
         key: data.keyId, amount: data.amount, currency: data.currency,
-        order_id: data.razorpayOrderId, name: 'DhupQwik',
+        order_id: data.razorpayOrderId, name: 'Kartigo',
         description: `Order of ${cart.length} item(s)`,
         prefill: { name, contact: phone },
         theme: { color: '#00c9b1' },
