@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Banners — Kartigo Admin</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    .banner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    @media(max-width:900px) { .banner-grid { grid-template-columns: 1fr; } }
+
+    .create-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px;
+    }
+    .create-panel h3 {
+      font-size: 15px; font-weight: 700; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px; color: var(--amber);
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--radius); color: var(--text);
+      font-size: 13px; font-family: inherit; outline: none; transition: var(--trans);
+    }
+    .form-input:focus { border-color: var(--amber); }
+    select.form-input { cursor: pointer; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .color-row { display: flex; align-items: center; gap: 10px; }
+    .color-row input[type=color] {
+      width: 40px; height: 36px; padding: 2px; border-radius: var(--radius);
+      border: 1.5px solid var(--border); background: var(--bg); cursor: pointer;
+    }
+    .color-row span { font-size: 12px; color: var(--text-muted); }
+
+    /* Image upload */
+    .img-upload-wrap {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: var(--trans); position: relative;
+    }
+    .img-upload-wrap:hover { border-color: var(--amber); }
+    .img-upload-wrap input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .img-upload-wrap i { font-size: 24px; color: var(--text-muted); margin-bottom: 8px; display: block; }
+    .img-upload-wrap p { font-size: 12px; color: var(--text-muted); margin: 0; }
+    #img-preview {
+      width: 100%; height: 100px; object-fit: cover;
+      border-radius: var(--radius); display: none; margin-top: 8px;
+    }
+
+    /* Banner preview */
+    .banner-preview {
+      border-radius: 12px; overflow: hidden; height: 140px;
+      position: relative; display: flex; align-items: center; padding: 20px;
+      margin-bottom: 16px; background: #0d2a2a;
+    }
+    .banner-preview-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+    }
+    .banner-preview-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+    }
+    .banner-preview-content { position: relative; z-index: 2; }
+    .banner-preview-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #fff;
+      background: rgba(255,255,255,0.15);
+      padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
+      display: inline-block;
+    }
+    .banner-preview-title { font-size: 18px; font-weight: 900; color: #fff; line-height: 1.2; }
+    .banner-preview-sub { font-size: 14px; font-weight: 700; display: block; }
+    .banner-preview-btn {
+      display: inline-block; margin-top: 8px;
+      padding: 5px 14px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      background: #10b981; color: #000;
+    }
+
+    /* Banner list cards */
+    .banner-list { display: flex; flex-direction: column; gap: 12px; }
+    .banner-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .banner-card-thumb {
+      height: 90px; position: relative;
+      background: #0d2a2a;
+      background-size: cover; background-position: center;
+    }
+    .banner-card-thumb-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.65) 0%, transparent 100%);
+      display: flex; align-items: center; padding: 16px;
+    }
+    .banner-card-thumb-title {
+      color: #fff; font-size: 14px; font-weight: 700;
+    }
+    .banner-card-body {
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .banner-card-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .banner-card-actions { display: flex; gap: 8px; }
+    .btn-icon {
+      width: 32px; height: 32px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; cursor: pointer; transition: var(--trans);
+      border: 1px solid var(--border); color: var(--text-muted);
+    }
+    .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-icon.danger:hover { border-color: var(--red); color: var(--red); background: rgba(248,81,73,0.08); }
+    .inactive-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 999px; background: rgba(248,81,73,0.12); color: var(--red);
+    }
+    .active-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 999px; background: rgba(16,185,129,0.12); color: var(--green);
+    }
+
+    /* Edit modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .modal-head h3 { font-size: 15px; font-weight: 700; color: var(--amber); }
+    .modal-close { font-size: 18px; cursor: pointer; color: var(--text-muted); }
+    .modal-close:hover { color: var(--text); }
+
+    .empty-banners { text-align: center; padding: 48px 24px; color: var(--text-muted); font-size: 13px; }
+    .empty-banners i { font-size: 36px; margin-bottom: 12px; display: block; opacity: 0.4; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Karti<span>go</span></div>
+      <div class="sidebar-badge">ADMIN PANEL</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
+        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
+        <span class="nav-icon"><i class="fa-solid fa-shirt"></i></span> Products
+      </a>
+      <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
+        <span class="nav-icon"><i class="fa-solid fa-box"></i></span> Orders
+      </a>
+      <a href="admin-coupons.html" class="nav-item" data-page="admin-coupons.html">
+        <span class="nav-icon"><i class="fa-solid fa-tag"></i></span> Coupons
+      </a>
+      <a href="admin-banners.html" class="nav-item" data-page="admin-banners.html">
+        <span class="nav-icon"><i class="fa-solid fa-image"></i></span> Banners
+      </a>
+      <a href="../frontend/index.html" class="nav-item" target="_blank">
+        <span class="nav-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span> View Store ↗
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar"><i class="fa-solid fa-user"></i></div>
+        <div><div class="admin-name">Admin</div><div class="admin-role">Store Manager</div></div>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Banners</div>
+      <div class="topbar-right"><span class="topbar-time" id="topbar-time"></span></div>
+    </div>
+
+    <div class="page-body">
+      <div class="banner-grid">
+
+        <!-- ── CREATE BANNER ──────────────────────────────── -->
+        <div class="create-panel">
+          <h3><i class="fa-solid fa-plus"></i> Create Banner</h3>
+
+          <!-- Live preview -->
+          <div class="banner-preview" id="b-preview">
+            <div class="banner-preview-bg" id="b-preview-bg" style="background:#0d2a2a"></div>
+            <div class="banner-preview-overlay"></div>
+            <div class="banner-preview-content">
+              <div class="banner-preview-tag" id="b-preview-tag">FREE DELIVERY · DHUPGURI</div>
+              <div class="banner-preview-title" id="b-preview-title">
+                Banner Title
+                <span class="banner-preview-sub" id="b-preview-sub" style="color:#10b981">Subtitle here</span>
+              </div>
+              <div class="banner-preview-btn" id="b-preview-btn">Shop Now →</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input type="text" class="form-input" id="f-title" placeholder="e.g. Fresh Drops,"
+              oninput="updatePreview()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subtitle (accent color)</label>
+            <input type="text" class="form-input" id="f-subtitle" placeholder="e.g. Delivered Fast"
+              oninput="updatePreview()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Top Tag</label>
+            <input type="text" class="form-input" id="f-tag" placeholder="e.g. FREE DELIVERY · DHUPGURI"
+              oninput="updatePreview()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Button Text</label>
+            <input type="text" class="form-input" id="f-btn" placeholder="Shop Now →" value="Shop Now →"
+              oninput="updatePreview()"/>
+          </div>
+
+          <!-- Colors -->
+          <div class="form-row" style="margin-bottom:14px;">
+            <div>
+              <label class="form-label">BG Color</label>
+              <div class="color-row">
+                <input type="color" id="f-bgcolor" value="#0d2a2a" oninput="updatePreview()"/>
+                <span>Background</span>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Accent Color</label>
+              <div class="color-row">
+                <input type="color" id="f-accent" value="#10b981" oninput="updatePreview()"/>
+                <span>Subtitle</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Background Image -->
+          <div class="form-group">
+            <label class="form-label">Background Image (optional)</label>
+            <div class="img-upload-wrap">
+              <input type="file" id="f-bgimage" accept="image/*" onchange="previewImage(this)"/>
+              <i class="fa-solid fa-image"></i>
+              <p>Click to upload image</p>
+              <img id="img-preview" alt="preview"/>
+            </div>
+          </div>
+
+          <!-- Link -->
+          <div class="form-group">
+            <label class="form-label">On Click</label>
+            <select class="form-input" id="f-linktype" onchange="toggleLinkFields()">
+              <option value="none">Scroll to products</option>
+              <option value="product">Go to a Product</option>
+              <option value="url">Custom URL</option>
+            </select>
+          </div>
+          <div id="link-product-wrap" style="display:none;" class="form-group">
+            <label class="form-label">Select Product</label>
+            <select class="form-input" id="f-productid">
+              <option value="">Loading products...</option>
+            </select>
+          </div>
+          <div id="link-url-wrap" style="display:none;" class="form-group">
+            <label class="form-label">Custom URL</label>
+            <input type="text" class="form-input" id="f-customurl" placeholder="https://..."/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Order (display position)</label>
+            <input type="number" class="form-input" id="f-order" value="0" min="0"/>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="createBanner()">
+            <i class="fa-solid fa-plus"></i> Create Banner
+          </button>
+        </div>
+
+        <!-- ── BANNERS LIST ───────────────────────────────── -->
+        <div>
+          <div class="section-head" style="margin-bottom:16px;">
+            <h2>Active Banners</h2>
+            <button class="btn btn-ghost btn-sm" onclick="loadBanners()">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div id="banners-loading" style="text-align:center;padding:32px;"><div class="spinner"></div></div>
+          <div class="banner-list" id="banner-list" style="display:none;"></div>
+          <div class="empty-banners" id="banner-empty" style="display:none;">
+            <i class="fa-solid fa-image"></i>
+            No banners yet. Create your first one!
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-pen"></i> Edit Banner</h3>
+      <span class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input type="text" class="form-input" id="e-title"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-input" id="e-subtitle"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Top Tag</label>
+      <input type="text" class="form-input" id="e-tag"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Button Text</label>
+      <input type="text" class="form-input" id="e-btn"/>
+    </div>
+    <div class="form-row" style="margin-bottom:14px;">
+      <div>
+        <label class="form-label">BG Color</label>
+        <input type="color" class="form-input" id="e-bgcolor" style="height:42px;padding:4px;"/>
+      </div>
+      <div>
+        <label class="form-label">Accent Color</label>
+        <input type="color" class="form-input" id="e-accent" style="height:42px;padding:4px;"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">New Background Image (optional)</label>
+      <div class="img-upload-wrap">
+        <input type="file" id="e-bgimage" accept="image/*"/>
+        <i class="fa-solid fa-image"></i>
+        <p>Click to replace image</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">On Click</label>
+      <select class="form-input" id="e-linktype" onchange="toggleEditLinkFields()">
+        <option value="none">Scroll to products</option>
+        <option value="product">Go to a Product</option>
+        <option value="url">Custom URL</option>
+      </select>
+    </div>
+    <div id="e-link-product-wrap" style="display:none;" class="form-group">
+      <label class="form-label">Select Product</label>
+      <select class="form-input" id="e-productid"></select>
+    </div>
+    <div id="e-link-url-wrap" style="display:none;" class="form-group">
+      <label class="form-label">Custom URL</label>
+      <input type="text" class="form-input" id="e-customurl"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Order</label>
+      <input type="number" class="form-input" id="e-order" min="0"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-input" id="e-active">
+        <option value="true">Active</option>
+        <option value="false">Inactive (hidden)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  requireAuth();
+
+  let allProducts   = [];
+  let editingBanner = null;
+
+  // ── Load products for the link dropdown ──────────────────
+  async function loadProducts() {
+    try {
+      const res  = await fetch(`${API_BASE}/products`);
+      allProducts = await res.json();
+      const opts = allProducts.map(p => `<option value="${p._id}">${p.name}</option>`).join('');
+      document.getElementById('f-productid').innerHTML = opts;
+      document.getElementById('e-productid').innerHTML = opts;
+    } catch {}
+  }
+
+  // ── Live preview ──────────────────────────────────────────
+  function updatePreview() {
+    const title   = document.getElementById('f-title').value    || 'Banner Title';
+    const sub     = document.getElementById('f-subtitle').value || 'Subtitle here';
+    const tag     = document.getElementById('f-tag').value      || 'YOUR TAG HERE';
+    const btn     = document.getElementById('f-btn').value      || 'Shop Now →';
+    const bgcolor = document.getElementById('f-bgcolor').value;
+    const accent  = document.getElementById('f-accent').value;
+
+    document.getElementById('b-preview-bg').style.background  = bgcolor;
+    document.getElementById('b-preview-title').childNodes[0].textContent = title + ' ';
+    document.getElementById('b-preview-sub').textContent  = sub;
+    document.getElementById('b-preview-sub').style.color  = accent;
+    document.getElementById('b-preview-tag').textContent  = tag;
+    document.getElementById('b-preview-btn').textContent  = btn;
+    document.getElementById('b-preview-btn').style.background = accent;
+  }
+
+  function previewImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('img-preview');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+      document.getElementById('b-preview-bg').style.backgroundImage = `url('${e.target.result}')`;
+      document.getElementById('b-preview-bg').style.backgroundSize  = 'cover';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function toggleLinkFields() {
+    const type = document.getElementById('f-linktype').value;
+    document.getElementById('link-product-wrap').style.display = type === 'product' ? 'block' : 'none';
+    document.getElementById('link-url-wrap').style.display     = type === 'url'     ? 'block' : 'none';
+  }
+  function toggleEditLinkFields() {
+    const type = document.getElementById('e-linktype').value;
+    document.getElementById('e-link-product-wrap').style.display = type === 'product' ? 'block' : 'none';
+    document.getElementById('e-link-url-wrap').style.display     = type === 'url'     ? 'block' : 'none';
+  }
+
+  // ── Create banner ─────────────────────────────────────────
+  async function createBanner() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required', 'error'); return; }
+
+    const fd = new FormData();
+    fd.append('title',      title);
+    fd.append('subtitle',   document.getElementById('f-subtitle').value);
+    fd.append('tag',        document.getElementById('f-tag').value);
+    fd.append('btnText',    document.getElementById('f-btn').value);
+    fd.append('bgColor',    document.getElementById('f-bgcolor').value);
+    fd.append('accentColor',document.getElementById('f-accent').value);
+    fd.append('linkType',   document.getElementById('f-linktype').value);
+    fd.append('productId',  document.getElementById('f-productid').value || '');
+    fd.append('customUrl',  document.getElementById('f-customurl').value || '');
+    fd.append('order',      document.getElementById('f-order').value);
+
+    const imgFile = document.getElementById('f-bgimage').files[0];
+    if (imgFile) fd.append('bgImage', imgFile);
+
+    try {
+      const res  = await fetch(`${API_BASE}/banners`, {
+        method:  'POST',
+        headers: authHeadersMultipart(),
+        body:    fd
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Banner created!', 'success');
+        document.getElementById('f-title').value    = '';
+        document.getElementById('f-subtitle').value = '';
+        document.getElementById('f-tag').value      = '';
+        document.getElementById('f-bgimage').value  = '';
+        document.getElementById('img-preview').style.display = 'none';
+        loadBanners();
+      } else {
+        showToast(data.message || 'Failed to create banner', 'error');
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+    }
+  }
+
+  // ── Load banners list ─────────────────────────────────────
+  async function loadBanners() {
+    document.getElementById('banners-loading').style.display = 'block';
+    document.getElementById('banner-list').style.display     = 'none';
+    document.getElementById('banner-empty').style.display    = 'none';
+
+    try {
+      const res     = await fetch(`${API_BASE}/banners/all`, { headers: authHeaders() });
+      const banners = await res.json();
+
+      document.getElementById('banners-loading').style.display = 'none';
+
+      if (!banners.length) {
+        document.getElementById('banner-empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('banner-list').style.display = 'flex';
+      document.getElementById('banner-list').innerHTML = banners.map(b => {
+        const bgStyle = b.bgImage
+          ? `background-image:url('${b.bgImage}');background-size:cover;background-position:center;`
+          : `background:${b.bgColor||'#0d2a2a'};`;
+        const linkLabel = b.linkType === 'product' ? '<i class="fa-solid fa-shirt"></i> Links to product'
+          : b.linkType === 'url' ? '<i class="fa-solid fa-link"></i> Custom URL'
+          : '<i class="fa-solid fa-arrow-down"></i> Scrolls to products';
+
+        return `
+          <div class="banner-card">
+            <div class="banner-card-thumb" style="${bgStyle}">
+              <div class="banner-card-thumb-overlay">
+                <div>
+                  <div class="banner-card-thumb-title">${b.title}</div>
+                  ${b.subtitle ? `<div style="color:${b.accentColor||'#10b981'};font-size:12px;font-weight:700;">${b.subtitle}</div>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="banner-card-body">
+              <div>
+                <div class="banner-card-meta">
+                  <span>${linkLabel}</span>
+                  <span><i class="fa-solid fa-sort"></i> Order: ${b.order}</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="${b.isActive ? 'active-badge' : 'inactive-badge'}">
+                  ${b.isActive ? 'Active' : 'Hidden'}
+                </span>
+                <div class="banner-card-actions">
+                  <button class="btn-icon" onclick="openEditModal('${b._id}')" title="Edit">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn-icon danger" onclick="deleteBanner('${b._id}','${b.title}')" title="Delete">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+    } catch {
+      document.getElementById('banners-loading').innerHTML =
+        '<div style="color:var(--red);padding:24px;text-align:center;">Failed to load banners.</div>';
+    }
+  }
+
+  // ── Edit modal ────────────────────────────────────────────
+  async function openEditModal(id) {
+    try {
+      const res     = await fetch(`${API_BASE}/banners/all`, { headers: authHeaders() });
+      const banners = await res.json();
+      const b       = banners.find(x => x._id === id);
+      if (!b) return;
+
+      editingBanner = b;
+      document.getElementById('e-title').value     = b.title;
+      document.getElementById('e-subtitle').value  = b.subtitle || '';
+      document.getElementById('e-tag').value       = b.tag || '';
+      document.getElementById('e-btn').value       = b.btnText || '';
+      document.getElementById('e-bgcolor').value   = b.bgColor || '#0d2a2a';
+      document.getElementById('e-accent').value    = b.accentColor || '#10b981';
+      document.getElementById('e-linktype').value  = b.linkType || 'none';
+      document.getElementById('e-productid').value = b.productId || '';
+      document.getElementById('e-customurl').value = b.customUrl || '';
+      document.getElementById('e-order').value     = b.order || 0;
+      document.getElementById('e-active').value    = String(b.isActive);
+      toggleEditLinkFields();
+      document.getElementById('edit-modal').classList.add('open');
+    } catch {
+      showToast('Failed to load banner', 'error');
+    }
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+    editingBanner = null;
+  }
+
+  async function saveEdit() {
+    if (!editingBanner) return;
+    const fd = new FormData();
+    fd.append('title',       document.getElementById('e-title').value);
+    fd.append('subtitle',    document.getElementById('e-subtitle').value);
+    fd.append('tag',         document.getElementById('e-tag').value);
+    fd.append('btnText',     document.getElementById('e-btn').value);
+    fd.append('bgColor',     document.getElementById('e-bgcolor').value);
+    fd.append('accentColor', document.getElementById('e-accent').value);
+    fd.append('linkType',    document.getElementById('e-linktype').value);
+    fd.append('productId',   document.getElementById('e-productid').value || '');
+    fd.append('customUrl',   document.getElementById('e-customurl').value || '');
+    fd.append('order',       document.getElementById('e-order').value);
+    fd.append('isActive',    document.getElementById('e-active').value);
+
+    const imgFile = document.getElementById('e-bgimage').files[0];
+    if (imgFile) fd.append('bgImage', imgFile);
+
+    try {
+      const res  = await fetch(`${API_BASE}/banners/${editingBanner._id}`, {
+        method:  'PUT',
+        headers: authHeadersMultipart(),
+        body:    fd
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Banner updated!', 'success');
+        closeEditModal();
+        loadBanners();
+      } else {
+        showToast(data.message || 'Failed to update', 'error');
+      }
+    } catch {
+      showToast('Cannot connect to server', 'error');
+    }
+  }
+
+  async function deleteBanner(id, title) {
+    if (!confirmAction(`Delete banner "${title}"?`)) return;
+    try {
+      const res  = await fetch(`${API_BASE}/banners/${id}`, {
+        method: 'DELETE', headers: authHeaders()
+      });
+      const data = await res.json();
+      if (data.success) { showToast('Banner deleted', 'success'); loadBanners(); }
+    } catch {
+      showToast('Failed to delete banner', 'error');
+    }
+  }
+
+  loadProducts();
+  loadBanners();
+</script>
+</body>
+</html>
