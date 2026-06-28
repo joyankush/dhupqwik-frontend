@@ -310,6 +310,7 @@
   }
 
   function changeQty(d) {
+    if (currentProduct && currentProduct.stock <= 0) return;
     quantity = Math.max(1, Math.min(10, quantity + d));
     document.getElementById('qty-val').textContent = quantity;
   }
@@ -322,6 +323,8 @@
   }
 
   function handleBuyNow() {
+    if (!currentProduct) return;
+    if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
     handleAddToCart();
     setTimeout(() => window.location.href = 'cart.html', 400);
   }
