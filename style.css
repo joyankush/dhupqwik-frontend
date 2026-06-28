@@ -402,7 +402,7 @@ ul{list-style:none;}
   background:var(--surface2);
   border:1.5px solid var(--border);
   border-radius:var(--r-md);
-  font-size:14px;color:var(--text);
+  font-size:16px;color:var(--text);
   outline:none;transition:var(--t);
   -webkit-appearance:none;
 }
