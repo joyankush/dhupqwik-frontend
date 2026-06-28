@@ -148,9 +148,11 @@
           onclick="goToProduct('${p._id}')">
           <div class="product-card-img-wrap">
             ${imgHTML}
-            <div class="product-card-badge new">New</div>
-            <button class="product-card-add"
-              onclick="quickAdd(event,'${p._id}')" aria-label="Add to cart">+</button>
+            ${(Date.now() - new Date(p.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000
+              ? '<div class="product-card-badge new">New</div>' : ''}
+            ${p.stock <= 0
+              ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;border-radius:var(--r-lg);"><span style=\"color:#fff;font-size:12px;font-weight:700;letter-spacing:1px;\">OUT OF STOCK</span></div>'
+              : '<button class=\"product-card-add\" onclick=\"quickAdd(event,\'' + p._id + '\')\" aria-label=\"Add to cart\">+</button>'}
           </div>
           <div class="product-card-body">
             <div class="product-card-name">${p.name}</div>
@@ -177,6 +179,7 @@
     e.stopPropagation();
     const p = allProducts.find(x => x._id === id);
     if (!p) return;
+    if (p.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
     const size = p.sizes?.includes('M') ? 'M' : (p.sizes?.[0] || 'M');
     addToCart(p, size, 1);
   }
