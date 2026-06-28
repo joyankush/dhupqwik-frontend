@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#07070f"/>
   <title>Product — Kartigo</title>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     /* Gallery */
     .gallery-main{
@@ -139,7 +140,7 @@
   <a href="index.html" style="font-size:20px;margin-right:8px;">←</a>
   <div class="nav-logo"><span class="accent">Karti</span>go</div>
   <div class="nav-actions">
-    <a href="cart.html" class="nav-icon-btn">🛒
+    <a href="cart.html" class="nav-icon-btn"><i class="fa-solid fa-cart-shopping"></i>
       <span class="nav-badge" data-cart-count>0</span>
     </a>
   </div>
@@ -163,10 +164,10 @@
 
       <!-- Info -->
       <div class="product-info fade-up-1">
-        <div class="p-cat">👔 Clothes</div>
+        <div class="p-cat"><i class="fa-solid fa-shirt"></i> Clothes</div>
         <h1 class="p-name" id="p-name">—</h1>
         <div class="p-price" id="p-price">—</div>
-        <div class="p-cod">✅ Cash on Delivery</div>
+        <div class="p-cod"><i class="fa-solid fa-check-circle"></i> Cash on Delivery</div>
         <div class="divider"></div>
         <p class="p-desc" id="p-desc">—</p>
 
@@ -188,13 +189,13 @@
 
     <!-- Sticky buy bar -->
     <div class="sticky-bar">
-      <button class="btn btn-outline" onclick="handleAddToCart()">🛒 Add to Cart</button>
+      <button class="btn btn-outline" onclick="handleAddToCart()"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
       <button class="btn btn-primary" onclick="handleBuyNow()">Buy Now →</button>
     </div>
   </div>
 
   <div class="empty-state" id="error-state" style="display:none;">
-    <div class="empty-state-icon">⚠️</div>
+    <div class="empty-state-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
     <h3>Product not found</h3>
     <p>This product may no longer be available.</p>
     <a href="index.html" class="btn btn-primary">Back to Shop</a>
@@ -210,13 +211,13 @@
 
 <nav class="bottom-nav">
   <a href="index.html" class="bnav-item" data-page="index.html">
-    <span class="bnav-icon">🏠</span><span>Home</span>
+    <span class="bnav-icon"><i class="fa-solid fa-house"></i></span><span>Home</span>
   </a>
   <a href="orders.html" class="bnav-item" data-page="orders.html">
-    <span class="bnav-icon">📦</span><span>Orders</span>
+    <span class="bnav-icon"><i class="fa-solid fa-box"></i></span><span>Orders</span>
   </a>
   <a href="cart.html" class="bnav-item" data-page="cart.html">
-    <span class="bnav-icon" style="position:relative;">🛒
+    <span class="bnav-icon" style="position:relative;"><i class="fa-solid fa-cart-shopping"></i>
       <span class="bnav-badge" data-cart-count>0</span>
     </span><span>Cart</span>
   </a>
@@ -286,7 +287,7 @@
     // Stock
     if (p.stock > 0) {
       document.getElementById('stock-info').innerHTML =
-        `<p style="font-size:12px;color:var(--green);margin-bottom:16px;">✅ ${p.stock} in stock</p>`;
+        `<p style="font-size:12px;color:var(--green);margin-bottom:16px;"><i class="fa-solid fa-check-circle"></i> ${p.stock} in stock</p>`;
     }
 
     document.getElementById('loading').style.display = 'none';

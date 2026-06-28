@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard — DhupQwik Admin</title>
   <link rel="stylesheet" href="admin-style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     /* ── Settings Cards ──────────────────────────────────── */
     .settings-grid {
@@ -87,26 +88,26 @@
     </div>
     <nav class="sidebar-nav">
       <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Dashboard
       </a>
       <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
-        <span class="nav-icon">👕</span> Products
+        <span class="nav-icon"><i class="fa-solid fa-shirt"></i></span> Products
       </a>
       <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
-        <span class="nav-icon">📦</span> Orders
+        <span class="nav-icon"><i class="fa-solid fa-box"></i></span> Orders
       </a>
       <a href="../frontend/index.html" class="nav-item" target="_blank">
-        <span class="nav-icon">🌐</span> View Store ↗
+        <span class="nav-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span> View Store ↗
       </a>
     </nav>
     <div class="sidebar-footer">
       <div class="admin-pill">
-        <div class="admin-avatar">👤</div>
+        <div class="admin-avatar"><i class="fa-solid fa-user"></i></div>
         <div>
           <div class="admin-name">Admin</div>
           <div class="admin-role">Store Manager</div>
         </div>
-        <button class="logout-btn" onclick="adminLogout()" title="Logout">⏏</button>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
     </div>
   </aside>
@@ -196,7 +197,7 @@
           <tbody id="recent-orders-body"></tbody>
         </table>
         <div class="table-empty" id="recent-empty" style="display:none;">
-          <div class="table-empty-icon">📭</div>
+          <div class="table-empty-icon"><i class="fa-solid fa-envelope-open"></i></div>
           <div>No orders yet.</div>
         </div>
       </div>
@@ -230,7 +231,7 @@
       <!-- COD Toggle -->
       <div class="setting-card">
         <div class="setting-card-info">
-          <div class="setting-card-label">💵 Cash on Delivery</div>
+          <div class="setting-card-label"><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</div>
           <div class="setting-card-desc">Allow customers to pay cash at door</div>
           <div class="setting-status ${codEnabled ? 'on' : 'off'}" id="cod-status">
             ${codEnabled ? '● Enabled' : '● Disabled'}
@@ -249,7 +250,7 @@
       <!-- Online Payment Toggle -->
       <div class="setting-card">
         <div class="setting-card-info">
-          <div class="setting-card-label">💳 Online Payment</div>
+          <div class="setting-card-label"><i class="fa-solid fa-credit-card"></i> Online Payment</div>
           <div class="setting-card-desc">UPI, Cards, Net Banking via Razorpay</div>
           <div class="setting-status ${onlinePaymentEnabled ? 'on' : 'off'}" id="online-status">
             ${onlinePaymentEnabled ? '● Enabled' : '● Disabled'}
@@ -354,7 +355,7 @@
             <span style="font-size:11px; padding:2px 8px; border-radius:4px;
               background:${o.paymentMethod === 'Online Payment' ? 'rgba(88,166,255,0.15)' : 'rgba(63,185,80,0.15)'};
               color:${o.paymentMethod === 'Online Payment' ? 'var(--blue)' : 'var(--green)'};">
-              ${o.paymentMethod === 'Online Payment' ? '💳 Online' : '💵 COD'}
+              ${o.paymentMethod === 'Online Payment' ? '<i class="fa-solid fa-credit-card"></i> Online' : '<i class="fa-solid fa-money-bill-wave"></i> COD'}
             </span>
           </td>
           <td>${statusBadge(o.status)}</td>

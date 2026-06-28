@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#07070f"/>
   <title>Checkout — Kartigo</title>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     .checkout-card{
       background:var(--card);
@@ -104,7 +105,7 @@
 
   <!-- Success -->
   <div id="success-screen" class="success-screen" style="display:none;">
-    <div class="success-icon" id="s-icon">🎉</div>
+    <div class="success-icon" id="s-icon"><i class="fa-solid fa-circle-check"></i></div>
     <div class="success-title" id="s-title">Order Placed!</div>
     <p class="success-msg" id="s-msg">Your order has been received. We'll confirm it shortly.</p>
     <div class="success-id" id="s-id"></div>
@@ -116,7 +117,7 @@
 
   <!-- Empty -->
   <div class="empty-state" id="empty-warning" style="display:none;">
-    <div class="empty-state-icon">🛒</div>
+    <div class="empty-state-icon"><i class="fa-solid fa-cart-shopping"></i></div>
     <h3>Cart is empty</h3>
     <a href="index.html" class="btn btn-primary" style="margin-top:8px;">Browse Products</a>
   </div>
@@ -133,7 +134,7 @@
       <!-- Left: Form -->
       <div>
         <div class="checkout-card fade-up">
-          <div class="checkout-card-title">📍 Delivery Details</div>
+          <div class="checkout-card-title"><i class="fa-solid fa-location-dot"></i> Delivery Details</div>
 
           <div class="form-group">
             <label class="form-label">Full Name *</label>
@@ -157,7 +158,7 @@
         </div>
 
         <div class="checkout-card fade-up-1">
-          <div class="checkout-card-title">💳 Payment Method</div>
+          <div class="checkout-card-title"><i class="fa-solid fa-credit-card"></i> Payment Method</div>
           <div id="payment-options">
             <div style="text-align:center;color:var(--text-muted);padding:16px;font-size:13px;">
               Loading options...
@@ -174,7 +175,7 @@
       <!-- Right: Summary -->
       <div class="fade-up-1">
         <div class="checkout-card">
-          <div class="checkout-card-title">🛒 Your Order</div>
+          <div class="checkout-card-title"><i class="fa-solid fa-bag-shopping"></i> Your Order</div>
           <div id="order-items"></div>
           <div class="sum-total">
             <span>Total to Pay</span>
@@ -195,13 +196,13 @@
 
 <nav class="bottom-nav">
   <a href="index.html" class="bnav-item" data-page="index.html">
-    <span class="bnav-icon">🏠</span><span>Home</span>
+    <span class="bnav-icon"><i class="fa-solid fa-house"></i></span><span>Home</span>
   </a>
   <a href="orders.html" class="bnav-item" data-page="orders.html">
-    <span class="bnav-icon">📦</span><span>Orders</span>
+    <span class="bnav-icon"><i class="fa-solid fa-box"></i></span><span>Orders</span>
   </a>
   <a href="cart.html" class="bnav-item" data-page="cart.html">
-    <span class="bnav-icon" style="position:relative;">🛒
+    <span class="bnav-icon" style="position:relative;"><i class="fa-solid fa-cart-shopping"></i>
       <span class="bnav-badge" data-cart-count>0</span>
     </span><span>Cart</span>
   </a>
@@ -244,7 +245,7 @@
       html += `
         <div class="payment-option" id="opt-online" onclick="selectPay('online')">
           <input type="radio" name="pay" value="online" id="r-online"/>
-          <div class="pay-icon">💳</div>
+          <div class="pay-icon"><i class="fa-solid fa-credit-card"></i></div>
           <div>
             <div class="pay-title">Pay Online</div>
             <div class="pay-desc">UPI · Cards · Net Banking · Wallets — Razorpay</div>
@@ -255,7 +256,7 @@
       html += `
         <div class="payment-option" id="opt-cod" onclick="selectPay('cod')">
           <input type="radio" name="pay" value="cod" id="r-cod"/>
-          <div class="pay-icon">💵</div>
+          <div class="pay-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
           <div>
             <div class="pay-title">Cash on Delivery</div>
             <div class="pay-desc">Pay cash when your order arrives</div>
@@ -329,7 +330,7 @@
       const data = await res.json();
       if (res.ok) {
         setCustomerPhone(phone); clearCart();
-        showSuccess('🎉', 'Order Placed!',
+        showSuccess('cod', 'Order Placed!',
           'Your order has been received. Pay cash when it arrives.',
           data._id || data.order?._id);
       } else {
@@ -379,7 +380,7 @@
           const vData = await vRes.json();
           if (vData.success) {
             setCustomerPhone(phone); clearCart();
-            showSuccess('✅', 'Payment Successful!', 'Your order is confirmed. Nothing to pay at delivery.', vData.order._id);
+            showSuccess('online', 'Payment Successful!', 'Your order is confirmed. Nothing to pay at delivery.', vData.order._id);
           } else {
             showToast('Payment verification failed.', 'error');
             btn.disabled=false; btn.textContent='Pay Now →';
@@ -397,7 +398,11 @@
   function showSuccess(icon, title, msg, id) {
     document.getElementById('checkout-content').style.display = 'none';
     document.getElementById('success-screen').style.display = 'block';
-    document.getElementById('s-icon').textContent  = icon;
+    const iconMap = {
+      'cod':    '<i class="fa-solid fa-circle-check"></i>',
+      'online': '<i class="fa-solid fa-shield-halved"></i>'
+    };
+    document.getElementById('s-icon').innerHTML = iconMap[icon] || '<i class="fa-solid fa-circle-check"></i>';
     document.getElementById('s-title').textContent = title;
     document.getElementById('s-msg').textContent   = msg;
     document.getElementById('s-id').textContent    = id ? `Order ID: ${id}` : '';

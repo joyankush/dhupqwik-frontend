@@ -97,11 +97,14 @@ function logoutCustomer()   { localStorage.removeItem('dq_phone'); }
 // ── Status Badge ─────────────────────────────────────────
 function statusBadgeHTML(status) {
   const icons = {
-    'pending':'🕐','confirmed':'✅',
-    'out for delivery':'🚴','delivered':'📦','cancelled':'❌'
+    'pending':          '<i class="fa-regular fa-clock"></i>',
+    'confirmed':        '<i class="fa-solid fa-check"></i>',
+    'out for delivery': '<i class="fa-solid fa-bicycle"></i>',
+    'delivered':        '<i class="fa-solid fa-box"></i>',
+    'cancelled':        '<i class="fa-solid fa-circle-xmark"></i>'
   };
   const cls = status.replace(/\s+/g, '-');
-  return `<span class="status-badge status-${cls}">${icons[status]||'📋'} ${status}</span>`;
+  return `<span class="status-badge status-${cls}">${icons[status]||'<i class="fa-solid fa-list"></i>'} ${status}</span>`;
 }
 
 // ── Init on every page ───────────────────────────────────
