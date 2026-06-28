@@ -144,8 +144,8 @@
         : `<div class="product-card-img-placeholder"><i class='fa-solid fa-shirt'></i></div>`;
 
       return `
-        <div class="product-card fade-up" style="animation-delay:${idx * 0.04}s"
-          onclick="goToProduct('${p._id}')">
+        <div class="product-card fade-up" style="animation-delay:${idx * 0.04}s${p.stock <= 0 ? ';cursor:default' : ''}"
+          onclick="${p.stock <= 0 ? '' : 'goToProduct(\''+ p._id +'\')'}">
           <div class="product-card-img-wrap">
             ${imgHTML}
             ${(Date.now() - new Date(p.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000

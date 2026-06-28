@@ -189,8 +189,8 @@
 
     <!-- Sticky buy bar -->
     <div class="sticky-bar">
-      <button class="btn btn-outline" onclick="handleAddToCart()"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
-      <button class="btn btn-primary" onclick="handleBuyNow()">Buy Now →</button>
+      <button class="btn btn-outline" id="add-btn" onclick="handleAddToCart()"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+      <button class="btn btn-primary" id="buy-btn" onclick="handleBuyNow()">Buy Now →</button>
     </div>
   </div>
 
@@ -316,6 +316,7 @@
 
   function handleAddToCart() {
     if (!currentProduct) return;
+    if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
     if (!selectedSize) { showToast('Please select a size', 'error'); return; }
     addToCart(currentProduct, selectedSize, quantity);
   }
