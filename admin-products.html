@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products — DhupQwik Admin</title>
+  <link rel="stylesheet" href="admin-style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    .products-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .products-layout { grid-template-columns: 1fr; }
+    }
+    .add-form { position: sticky; top: 76px; }
+
+    .sizes-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .size-check { display: none; }
+    .size-check-label {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 36px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 12px; font-weight: 600; color: var(--text-soft);
+      cursor: pointer; transition: var(--trans);
+    }
+    .size-check:checked + .size-check-label {
+      background: var(--amber-glow); border-color: var(--amber); color: var(--amber);
+    }
+    .size-check-label:hover { border-color: var(--amber); }
+
+    .upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: var(--trans); position: relative;
+    }
+    .upload-area:hover { border-color: var(--amber); background: var(--amber-glow); }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+    .upload-text { font-size: 12px; color: var(--text-soft); }
+    .upload-text strong { color: var(--amber); }
+
+    .preview-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; margin-top: 12px;
+    }
+    .preview-item {
+      position: relative; aspect-ratio: 3/4;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-item .remove-preview {
+      position: absolute; top: 3px; right: 3px;
+      background: rgba(248,81,73,0.85); color: white;
+      border: none; border-radius: 50%;
+      width: 18px; height: 18px; font-size: 10px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .preview-count { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+    .product-thumb {
+      width: 44px; height: 56px; object-fit: cover;
+      border-radius: 6px; background: var(--surface2);
+    }
+    .product-thumb-placeholder {
+      width: 44px; height: 56px; background: var(--surface2);
+      border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Karti<span>go</span></div>
+      <div class="sidebar-badge">ADMIN PANEL</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin-dashboard.html" class="nav-item" data-page="admin-dashboard.html">
+        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Dashboard
+      </a>
+      <a href="admin-products.html" class="nav-item" data-page="admin-products.html">
+        <span class="nav-icon"><i class="fa-solid fa-shirt"></i></span> Products
+      </a>
+      <a href="admin-orders.html" class="nav-item" data-page="admin-orders.html">
+        <span class="nav-icon"><i class="fa-solid fa-box"></i></span> Orders
+      </a>
+      <a href="admin-coupons.html" class="nav-item" data-page="admin-coupons.html">
+        <span class="nav-icon"><i class="fa-solid fa-tag"></i></span> Coupons
+      </a>
+      <a href="../frontend/index.html" class="nav-item" target="_blank">
+        <span class="nav-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span> View Store ↗
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="admin-avatar"><i class="fa-solid fa-user"></i></div>
+        <div>
+          <div class="admin-name">Admin</div>
+          <div class="admin-role">Store Manager</div>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Products</div>
+      <div class="topbar-right">
+        <span id="topbar-time" class="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="products-layout">
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="add-form">
+          <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-plus"></i> Add New Product</div>
+
+            <div class="form-group">
+              <label class="form-label">Product Name *</label>
+              <input type="text" class="form-input" id="prod-name" placeholder="e.g. Cotton Kurta"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Price (₹) *</label>
+              <input type="number" class="form-input" id="prod-price" placeholder="e.g. 599" min="0"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description *</label>
+              <textarea class="form-input" id="prod-desc"
+                placeholder="Describe the product, material, style..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" class="form-input" id="prod-stock" placeholder="e.g. 20" min="0"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Available Sizes</label>
+              <div class="sizes-row">
+                <input type="checkbox" class="size-check" id="sz-xs" value="XS"/>
+                <label class="size-check-label" for="sz-xs">XS</label>
+                <input type="checkbox" class="size-check" id="sz-s" value="S" checked/>
+                <label class="size-check-label" for="sz-s">S</label>
+                <input type="checkbox" class="size-check" id="sz-m" value="M" checked/>
+                <label class="size-check-label" for="sz-m">M</label>
+                <input type="checkbox" class="size-check" id="sz-l" value="L" checked/>
+                <label class="size-check-label" for="sz-l">L</label>
+                <input type="checkbox" class="size-check" id="sz-xl" value="XL" checked/>
+                <label class="size-check-label" for="sz-xl">XL</label>
+                <input type="checkbox" class="size-check" id="sz-xxl" value="XXL"/>
+                <label class="size-check-label" for="sz-xxl">XXL</label>
+                <input type="checkbox" class="size-check" id="sz-free" value="Free Size"/>
+                <label class="size-check-label" for="sz-free" style="width:auto;padding:0 10px;">Free</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Product Images * (up to 5)</label>
+              <div class="upload-area">
+                <!-- ✅ FIX: onchange is INSIDE the tag, not outside it -->
+                <input type="file" id="prod-images" accept="image/*" multiple
+                  onchange="previewImages(this)"/>
+                <div class="upload-icon"><i class="fa-solid fa-camera"></i></div>
+                <div class="upload-text">
+                  <strong>Click to select images</strong><br/>
+                  Hold Ctrl to pick multiple · Max 5
+                </div>
+              </div>
+              <div class="preview-grid" id="preview-grid" style="display:none;"></div>
+              <div class="preview-count" id="preview-count"></div>
+            </div>
+
+            <button class="btn btn-amber btn-full" id="add-product-btn" onclick="addProduct()">
+              Add Product
+            </button>
+          </div>
+        </div>
+
+        <!-- PRODUCTS TABLE -->
+        <div>
+          <div class="section-head">
+            <h2>All Products
+              <span id="product-count"
+                style="font-size:13px;color:var(--text-muted);font-weight:400;"></span>
+            </h2>
+            <button class="btn btn-ghost btn-sm" onclick="loadProducts()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+          </div>
+
+          <div class="table-wrap">
+            <div id="prod-loading"><div class="spinner"></div></div>
+            <table class="data-table" id="prod-table" style="display:none;">
+              <thead>
+                <tr>
+                  <th>Image</th><th>Name</th><th>Price</th>
+                  <th>Stock</th><th>Sizes</th><th>Added</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-body"></tbody>
+            </table>
+            <div class="table-empty" id="prod-empty" style="display:none;">
+              <div class="table-empty-icon"><i class="fa-solid fa-shirt"></i></div>
+              <div>No products yet. Add your first product!</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="admin-utils.js"></script>
+<script>
+  requireAuth();
+
+  // Track selected files across multiple picks
+  let selectedFiles = [];
+
+  // ✅ FIX: previewImages (plural) matches the onchange above
+  function previewImages(input) {
+    const newFiles = Array.from(input.files);
+    selectedFiles = [...selectedFiles, ...newFiles].slice(0, 5);
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    const grid    = document.getElementById('preview-grid');
+    const countEl = document.getElementById('preview-count');
+
+    if (selectedFiles.length === 0) {
+      grid.style.display = 'none';
+      countEl.textContent = '';
+      return;
+    }
+
+    grid.style.display = 'grid';
+    countEl.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+    grid.innerHTML = selectedFiles.map((file, i) => `
+      <div class="preview-item">
+        <img src="${URL.createObjectURL(file)}" alt="preview"/>
+        <button class="remove-preview" onclick="removePreview(${i})">✕</button>
+        ${i === 0 ? '<div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.6);color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;">Main</div>' : ''}
+      </div>
+    `).join('');
+  }
+
+  function removePreview(index) {
+    selectedFiles.splice(index, 1);
+    document.getElementById('prod-images').value = '';
+    renderPreviews();
+  }
+
+  function getSelectedSizes() {
+    return Array.from(document.querySelectorAll('.size-check:checked')).map(cb => cb.value);
+  }
+
+  // ✅ FIX: formData is declared FIRST, then files are appended to it
+  async function addProduct() {
+    const name  = document.getElementById('prod-name').value.trim();
+    const price = document.getElementById('prod-price').value.trim();
+    const desc  = document.getElementById('prod-desc').value.trim();
+    const stock = document.getElementById('prod-stock').value.trim();
+    const sizes = getSelectedSizes();
+
+    if (!name)  { showToast('Product name is required', 'error'); return; }
+    if (!price) { showToast('Price is required', 'error'); return; }
+    if (!desc)  { showToast('Description is required', 'error'); return; }
+    if (selectedFiles.length === 0) { showToast('Please select at least one image', 'error'); return; }
+    if (sizes.length === 0) { showToast('Select at least one size', 'error'); return; }
+
+    const btn = document.getElementById('add-product-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+
+    // ✅ FIX: FormData declared BEFORE we append files to it
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    formData.append('description', desc);
+    formData.append('stock', stock || '0');
+    formData.append('sizes', JSON.stringify(sizes));
+
+    // ✅ FIX: Now append all image files (formData exists at this point)
+    selectedFiles.forEach(file => formData.append('images', file));
+
+    try {
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: authHeadersMultipart(),
+        body: formData
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(`"${data.name || data.product?.name}" added!`, 'success');
+        resetForm();
+        loadProducts();
+      } else {
+        showToast(data.message || 'Failed to add product', 'error');
+      }
+    } catch (err) {
+      showToast('Cannot connect to server: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Add Product';
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('prod-name').value  = '';
+    document.getElementById('prod-price').value = '';
+    document.getElementById('prod-desc').value  = '';
+    document.getElementById('prod-stock').value = '';
+    // ✅ FIX: correct ID is prod-images not prod-image
+    document.getElementById('prod-images').value = '';
+    selectedFiles = [];
+    renderPreviews();
+  }
+
+  async function loadProducts() {
+    document.getElementById('prod-loading').style.display = 'block';
+    document.getElementById('prod-table').style.display   = 'none';
+    document.getElementById('prod-empty').style.display   = 'none';
+
+    try {
+      const res  = await fetch(`${API_BASE}/products`);
+      const data = await res.json();
+      // ✅ handles both array response and {products:[]} response
+      const products = Array.isArray(data) ? data : (data.products || []);
+
+      document.getElementById('prod-loading').style.display = 'none';
+      document.getElementById('product-count').textContent  = `(${products.length})`;
+
+      if (products.length === 0) {
+        document.getElementById('prod-empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('prod-table').style.display = 'table';
+      document.getElementById('products-body').innerHTML = products.map(p => {
+        const firstImg = p.images?.[0];
+        const thumb = firstImg
+          ? `<img class="product-thumb" src="${firstImg}" alt="${p.name}"
+               onerror="this.style.display='none'">`
+          : `<div class="product-thumb-placeholder"><i class='fa-solid fa-shirt'></i></div>`;
+
+        return `
+          <tr>
+            <td>${thumb}</td>
+            <td>
+              <div style="font-weight:600;">${p.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                ${(p.description || '').substring(0, 50)}${p.description?.length > 50 ? '…' : ''}
+              </div>
+            </td>
+            <td style="color:var(--amber);font-weight:700;">${formatPrice(p.price)}</td>
+            <td style="color:var(--text-soft);">${p.stock ?? 0}</td>
+            <td>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                ${(p.sizes || []).map(s =>
+                  `<span style="background:var(--surface2);border:1px solid var(--border);
+                    padding:1px 7px;border-radius:4px;font-size:11px;">${s}</span>`
+                ).join('')}
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
+              ${formatDate(p.createdAt)}
+            </td>
+            <td>
+              <button class="btn btn-danger btn-sm"
+                onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g,"\\'")}')">
+                <i class="fa-solid fa-trash-can"></i> Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch (err) {
+      document.getElementById('prod-loading').innerHTML =
+        `<div style="color:var(--red);padding:24px;text-align:center;">
+          Failed to load. Error: ${err.message}
+        </div>`;
+    }
+  }
+
+  async function deleteProduct(id, name) {
+    if (!confirmAction(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      const res  = await fetch(`${API_BASE}/products/${id}`, {
+        method: 'DELETE', headers: authHeaders()
+      });
+      const data = await res.json();
+      if (res.ok) { showToast(`"${name}" deleted`, 'success'); loadProducts(); }
+      else showToast(data.message || 'Delete failed', 'error');
+    } catch { showToast('Cannot connect to server', 'error'); }
+  }
+
+  loadProducts();
+</script>
+</body>
+</html>
