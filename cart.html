@@ -218,7 +218,7 @@
     const count = getCartCount();
     sub.textContent       = `${count} item${count!==1?'s':''} in your cart`;
     emptyEl.style.display = 'none';
-    content.style.display = 'grid';
+    content.style.display = 'block';
 
     document.getElementById('cart-items').innerHTML = cart.map(item => {
       const imgUrl = getImageUrl(item.image);
