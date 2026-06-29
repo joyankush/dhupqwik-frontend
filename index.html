@@ -14,11 +14,11 @@
       border-radius: 20px;
       overflow: hidden;
       margin-top: 16px;
-      height: 220px;
+      aspect-ratio: 16/7;
       background: #0d2a2a;
     }
-    @media(min-width: 640px) { .hero-carousel { height: 280px; } }
-    @media(min-width: 1024px) { .hero-carousel { height: 340px; } }
+    @media(max-width: 480px) { .hero-carousel { aspect-ratio: 4/3; border-radius: 14px; } }
+    @media(min-width: 1024px) { .hero-carousel { aspect-ratio: 21/7; } }
 
     .hero-slides { display: flex; height: 100%; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
 
@@ -33,7 +33,9 @@
     }
     .hero-slide-bg {
       position: absolute; inset: 0;
-      background-size: cover; background-position: center;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
       transition: transform 6s ease;
     }
     .hero-slide:hover .hero-slide-bg { transform: scale(1.04); }
@@ -247,10 +249,10 @@
   async function loadBanners() {
     try {
       const res     = await fetch(`${API_BASE}/banners`);
-      const banners = await res.json();
+      const data    = await res.json();
+      const banners = Array.isArray(data) ? data : [];
 
       if (!banners || banners.length === 0) {
-        // Fallback to default static slide
         renderFallbackBanner();
         return;
       }
@@ -344,7 +346,11 @@
           </div>
           <div class="product-card-body">
             <div class="product-card-name">${p.name}</div>
-            <div class="product-card-price">${p.price.toLocaleString('en-IN')}</div>
+            <div class="product-card-price">
+              ${p.originalPrice && p.originalPrice > p.price
+                ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:11px;margin-right:4px;">₹${p.originalPrice.toLocaleString('en-IN')}</span>₹${p.price.toLocaleString('en-IN')} <span style="font-size:10px;color:var(--green);font-weight:700;">${Math.round((1-p.price/p.originalPrice)*100)}% off</span>`
+                : `₹${p.price.toLocaleString('en-IN')}`}
+            </div>
           </div>
         </div>
       `;

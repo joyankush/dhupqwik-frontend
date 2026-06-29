@@ -74,6 +74,36 @@
       border-radius: 6px; display: flex; align-items: center;
       justify-content: center; font-size: 20px;
     }
+
+    /* Edit modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px;
+      width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .modal-head h3 { font-size: 15px; font-weight: 700; color: var(--amber); }
+    .modal-close { font-size: 20px; cursor: pointer; color: var(--text-muted); line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Discount badge in table */
+    .discount-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; background: rgba(16,185,129,0.12); color: var(--green);
+      margin-left: 4px;
+    }
+    .price-original {
+      text-decoration: line-through; color: var(--text-muted);
+      font-size: 11px; margin-right: 4px;
+    }
   </style>
 </head>
 <body>
@@ -137,9 +167,18 @@
               <input type="text" class="form-input" id="prod-name" placeholder="e.g. Cotton Kurta"/>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Price (₹) *</label>
-              <input type="number" class="form-input" id="prod-price" placeholder="e.g. 599" min="0"/>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-group">
+                <label class="form-label">Selling Price (₹) *</label>
+                <input type="number" class="form-input" id="prod-price" placeholder="e.g. 499" min="0"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Original MRP (₹) <span style="color:var(--text-muted);font-weight:400;">optional</span></label>
+                <input type="number" class="form-input" id="prod-original-price" placeholder="e.g. 999" min="0"/>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">
+              <i class="fa-solid fa-circle-info"></i> If MRP set, customers see: <s>₹999</s> ₹499 · 50% off
             </div>
 
             <div class="form-group">
@@ -210,8 +249,7 @@
             <table class="data-table" id="prod-table" style="display:none;">
               <thead>
                 <tr>
-                  <th>Image</th><th>Name</th><th>Price</th>
-                  <th>Stock</th><th>Sizes</th><th>Added</th><th>Actions</th>
+                  <th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Sizes</th><th>Added</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody id="products-body"></tbody>
@@ -226,6 +264,88 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- ── Edit Product Modal ──────────────────────────────── -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-pen"></i> Edit Product</h3>
+      <span class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Product Name *</label>
+      <input type="text" class="form-input" id="e-name"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Selling Price (₹) *</label>
+        <input type="number" class="form-input" id="e-price" min="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Original MRP (₹) <span style="color:var(--text-muted);font-weight:400;">optional</span></label>
+        <input type="number" class="form-input" id="e-original-price" min="0" placeholder="Leave blank to remove"/>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">
+      <i class="fa-solid fa-circle-info"></i> If MRP set, customers see: <s>₹MRP</s> ₹Price · X% off
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <textarea class="form-input" id="e-desc" style="min-height:80px;"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Stock Quantity</label>
+      <input type="number" class="form-input" id="e-stock" min="0"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Available Sizes</label>
+      <div class="sizes-row" id="e-sizes-row">
+        <input type="checkbox" class="size-check" id="e-sz-xs" value="XS"/>
+        <label class="size-check-label" for="e-sz-xs">XS</label>
+        <input type="checkbox" class="size-check" id="e-sz-s" value="S"/>
+        <label class="size-check-label" for="e-sz-s">S</label>
+        <input type="checkbox" class="size-check" id="e-sz-m" value="M"/>
+        <label class="size-check-label" for="e-sz-m">M</label>
+        <input type="checkbox" class="size-check" id="e-sz-l" value="L"/>
+        <label class="size-check-label" for="e-sz-l">L</label>
+        <input type="checkbox" class="size-check" id="e-sz-xl" value="XL"/>
+        <label class="size-check-label" for="e-sz-xl">XL</label>
+        <input type="checkbox" class="size-check" id="e-sz-xxl" value="XXL"/>
+        <label class="size-check-label" for="e-sz-xxl">XXL</label>
+        <input type="checkbox" class="size-check" id="e-sz-free" value="Free Size"/>
+        <label class="size-check-label" for="e-sz-free" style="width:auto;padding:0 10px;">Free</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Replace Images (optional)</label>
+      <div class="upload-area">
+        <input type="file" id="e-images" accept="image/*" multiple onchange="previewEditImages(this)"/>
+        <div class="upload-icon"><i class="fa-solid fa-camera"></i></div>
+        <div class="upload-text"><strong>Click to select new images</strong><br/>Leave empty to keep existing</div>
+      </div>
+      <div class="preview-grid" id="e-preview-grid" style="display:none;"></div>
+    </div>
+
+    <!-- Current images preview -->
+    <div class="form-group" id="e-current-images-wrap">
+      <label class="form-label">Current Images</label>
+      <div class="preview-grid" id="e-current-images"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-amber" style="flex:1;" onclick="saveEdit()">
+        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+      </button>
+    </div>
+  </div>
 </div>
 
 <script src="admin-utils.js"></script>
@@ -293,11 +413,13 @@
 
     // ✅ FIX: FormData declared BEFORE we append files to it
     const formData = new FormData();
+    const originalPrice = document.getElementById('prod-original-price').value.trim();
     formData.append('name', name);
     formData.append('price', price);
     formData.append('description', desc);
     formData.append('stock', stock || '0');
     formData.append('sizes', JSON.stringify(sizes));
+    if (originalPrice) formData.append('originalPrice', originalPrice);
 
     // ✅ FIX: Now append all image files (formData exists at this point)
     selectedFiles.forEach(file => formData.append('images', file));
@@ -330,6 +452,7 @@
     document.getElementById('prod-price').value = '';
     document.getElementById('prod-desc').value  = '';
     document.getElementById('prod-stock').value = '';
+    document.getElementById('prod-original-price').value = '';
     // ✅ FIX: correct ID is prod-images not prod-image
     document.getElementById('prod-images').value = '';
     selectedFiles = [];
@@ -372,7 +495,13 @@
                 ${(p.description || '').substring(0, 50)}${p.description?.length > 50 ? '…' : ''}
               </div>
             </td>
-            <td style="color:var(--amber);font-weight:700;">${formatPrice(p.price)}</td>
+            <td>
+              ${p.originalPrice && p.originalPrice > p.price ? `
+                <span class="price-original">₹${p.originalPrice.toLocaleString('en-IN')}</span>
+                <span style="color:var(--amber);font-weight:700;">₹${p.price.toLocaleString('en-IN')}</span>
+                <span class="discount-badge">${Math.round((1 - p.price/p.originalPrice)*100)}% off</span>
+              ` : `<span style="color:var(--amber);font-weight:700;">${formatPrice(p.price)}</span>`}
+            </td>
             <td style="color:var(--text-soft);">${p.stock ?? 0}</td>
             <td>
               <div style="display:flex;gap:4px;flex-wrap:wrap;">
@@ -385,7 +514,11 @@
             <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
               ${formatDate(p.createdAt)}
             </td>
-            <td>
+            <td style="display:flex;gap:6px;align-items:center;padding-top:12px;">
+              <button class="btn btn-ghost btn-sm"
+                onclick="openEditModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
               <button class="btn btn-danger btn-sm"
                 onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g,"\\'")}')">
                 <i class="fa-solid fa-trash-can"></i> Delete
@@ -413,6 +546,118 @@
       else showToast(data.message || 'Delete failed', 'error');
     } catch { showToast('Cannot connect to server', 'error'); }
   }
+
+  // ── Edit Modal ───────────────────────────────────────────
+  let editingProduct  = null;
+  let editFiles       = [];
+
+  function openEditModal(p) {
+    editingProduct = p;
+    editFiles      = [];
+
+    document.getElementById('e-name').value           = p.name || '';
+    document.getElementById('e-price').value          = p.price || '';
+    document.getElementById('e-original-price').value = p.originalPrice || '';
+    document.getElementById('e-desc').value           = p.description || '';
+    document.getElementById('e-stock').value          = p.stock ?? '';
+
+    // Set sizes
+    const allSizes = ['XS','S','M','L','XL','XXL','Free Size'];
+    allSizes.forEach(s => {
+      const id = 'e-sz-' + s.toLowerCase().replace(' ','-').replace('size','').trim();
+      const el = document.getElementById(id) || document.getElementById('e-sz-' + (s==='Free Size'?'free':s.toLowerCase()));
+      if (el) el.checked = (p.sizes || []).includes(s);
+    });
+
+    // Show current images
+    const curWrap = document.getElementById('e-current-images');
+    if (p.images && p.images.length) {
+      curWrap.innerHTML = p.images.map(img => `
+        <div class="preview-item">
+          <img src="${img}" alt="current" onerror="this.style.display='none'"/>
+        </div>`).join('');
+      document.getElementById('e-current-images-wrap').style.display = 'block';
+    } else {
+      document.getElementById('e-current-images-wrap').style.display = 'none';
+    }
+
+    document.getElementById('e-preview-grid').style.display = 'none';
+    document.getElementById('e-images').value = '';
+    document.getElementById('edit-modal').classList.add('open');
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+    editingProduct = null;
+    editFiles = [];
+  }
+
+  function previewEditImages(input) {
+    editFiles = Array.from(input.files).slice(0, 5);
+    const grid = document.getElementById('e-preview-grid');
+    if (!editFiles.length) { grid.style.display = 'none'; return; }
+    grid.style.display = 'grid';
+    grid.innerHTML = editFiles.map((f, i) => `
+      <div class="preview-item">
+        <img src="${URL.createObjectURL(f)}" alt="new"/>
+        ${i === 0 ? '<div style="position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.6);color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;">Main</div>' : ''}
+      </div>`).join('');
+  }
+
+  function getEditSizes() {
+    return Array.from(document.querySelectorAll('#e-sizes-row .size-check:checked')).map(cb => cb.value);
+  }
+
+  async function saveEdit() {
+    if (!editingProduct) return;
+    const name  = document.getElementById('e-name').value.trim();
+    const price = document.getElementById('e-price').value.trim();
+    const desc  = document.getElementById('e-desc').value.trim();
+    const stock = document.getElementById('e-stock').value.trim();
+    const orig  = document.getElementById('e-original-price').value.trim();
+    const sizes = getEditSizes();
+
+    if (!name)  { showToast('Name is required', 'error'); return; }
+    if (!price) { showToast('Price is required', 'error'); return; }
+    if (!desc)  { showToast('Description is required', 'error'); return; }
+    if (!sizes.length) { showToast('Select at least one size', 'error'); return; }
+
+    const fd = new FormData();
+    fd.append('name',        name);
+    fd.append('price',       price);
+    fd.append('description', desc);
+    fd.append('stock',       stock || '0');
+    fd.append('sizes',       JSON.stringify(sizes));
+    if (orig) fd.append('originalPrice', orig);
+    else fd.append('originalPrice', '');   // clear it
+    editFiles.forEach(f => fd.append('images', f));
+
+    const btn = document.querySelector('#edit-modal .btn-amber');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const res  = await fetch(`${API_BASE}/products/${editingProduct._id}`, {
+        method: 'PUT', headers: authHeadersMultipart(), body: fd
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`"${name}" updated!`, 'success');
+        closeEditModal();
+        loadProducts();
+      } else {
+        showToast(data.message || 'Update failed', 'error');
+      }
+    } catch { showToast('Cannot connect to server', 'error'); }
+    finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+    }
+  }
+
+  // Close modal on overlay click
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
 
   loadProducts();
 </script>
