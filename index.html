@@ -103,6 +103,17 @@
     .hero-arrow.prev { left: 12px; }
     .hero-arrow.next { right: 12px; }
 
+    /* Mobile responsive hero content */
+    @media(max-width: 480px) {
+      .hero-slide { padding: 20px 18px; }
+      .hero-tag { font-size: 9px; padding: 3px 10px; margin-bottom: 8px; }
+      .hero-title { font-size: 20px !important; margin-bottom: 6px; }
+      .hero-title .hl { font-size: 20px; }
+      .hero-sub { font-size: 11px; margin-bottom: 12px; }
+      .hero-btn { font-size: 12px; padding: 8px 16px; }
+      .hero-arrow { width: 28px; height: 28px; font-size: 11px; }
+    }
+
     /* Fallback static banner when no banners from API */
     .hero-static {
       border-radius: 20px; overflow: hidden; margin-top: 16px;
@@ -208,19 +219,21 @@
   let heroTimer    = null;
 
   function buildSlideHTML(b) {
-    const bgStyle = b.bgImage
-      ? `background-image:url('${b.bgImage}')`
-      : `background:${b.bgColor || '#0d2a2a'}`;
+    // Build full background style including image + fallback color
+    let bgStyle = `background-color:${b.bgColor || '#0d2a2a'};`;
+    if (b.bgImage) {
+      bgStyle += `background-image:url('${b.bgImage}');background-size:cover;background-position:center center;background-repeat:no-repeat;`;
+    }
     const tag = b.tag ? `<div class="hero-tag"><i class="fa-solid fa-truck"></i> ${b.tag}</div>` : '';
-    const btn = b.btnText ? `<span class="hero-btn">${b.btnText}</span>` : '';
+    const btn = b.btnText ? `<span class="hero-btn" style="background:${b.accentColor||'#10b981'};color:#000;">${b.btnText}</span>` : '';
     return `
-      <div class="hero-slide" onclick="handleBannerClick('${b.linkType}','${b.productId}','${b.customUrl}')">
+      <div class="hero-slide" onclick="handleBannerClick('${b.linkType}','${b.productId || ''}','${b.customUrl || ''}')">
         <div class="hero-slide-bg" style="${bgStyle}"></div>
         <div class="hero-slide-overlay"></div>
         <div class="hero-slide-content">
           ${tag}
           <h1 class="hero-title" style="color:${b.textColor||'#fff'}">
-            ${b.title}<span class="hl" style="color:${b.accentColor||'#10b981'}">${b.subtitle||''}</span>
+            ${b.title}${b.subtitle ? `<span class="hl" style="color:${b.accentColor||'#10b981'}">${b.subtitle}</span>` : ''}
           </h1>
           ${btn}
         </div>

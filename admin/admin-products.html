@@ -193,6 +193,15 @@
             </div>
 
             <div class="form-group">
+              <label class="form-label">Estimated Delivery</label>
+              <input type="text" class="form-input" id="prod-delivery"
+                placeholder="e.g. 2-3 days · by Tomorrow · 5-7 business days"/>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                <i class="fa-solid fa-circle-info"></i> Shown on product page under the price
+              </div>
+            </div>
+
+            <div class="form-group">
               <label class="form-label">Available Sizes</label>
               <div class="sizes-row">
                 <input type="checkbox" class="size-check" id="sz-xs" value="XS"/>
@@ -301,6 +310,12 @@
     <div class="form-group">
       <label class="form-label">Stock Quantity</label>
       <input type="number" class="form-input" id="e-stock" min="0"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Estimated Delivery</label>
+      <input type="text" class="form-input" id="e-delivery"
+        placeholder="e.g. 2-3 days · by Tomorrow · 5-7 business days"/>
     </div>
 
     <div class="form-group">
@@ -420,6 +435,7 @@
     formData.append('stock', stock || '0');
     formData.append('sizes', JSON.stringify(sizes));
     if (originalPrice) formData.append('originalPrice', originalPrice);
+    formData.append('estimatedDelivery', document.getElementById('prod-delivery').value.trim());
 
     // ✅ FIX: Now append all image files (formData exists at this point)
     selectedFiles.forEach(file => formData.append('images', file));
@@ -453,6 +469,7 @@
     document.getElementById('prod-desc').value  = '';
     document.getElementById('prod-stock').value = '';
     document.getElementById('prod-original-price').value = '';
+    document.getElementById('prod-delivery').value = '';
     // ✅ FIX: correct ID is prod-images not prod-image
     document.getElementById('prod-images').value = '';
     selectedFiles = [];
@@ -557,9 +574,10 @@
 
     document.getElementById('e-name').value           = p.name || '';
     document.getElementById('e-price').value          = p.price || '';
-    document.getElementById('e-original-price').value = p.originalPrice || '';
+    document.getElementById('e-original-price').value = (p.originalPrice && p.originalPrice > 0) ? p.originalPrice : '';
     document.getElementById('e-desc').value           = p.description || '';
-    document.getElementById('e-stock').value          = p.stock ?? '';
+    document.getElementById('e-stock').value            = p.stock ?? '';
+    document.getElementById('e-delivery').value          = p.estimatedDelivery || '';
 
     // Set sizes
     const allSizes = ['XS','S','M','L','XL','XXL','Free Size'];
@@ -628,8 +646,8 @@
     fd.append('description', desc);
     fd.append('stock',       stock || '0');
     fd.append('sizes',       JSON.stringify(sizes));
-    if (orig) fd.append('originalPrice', orig);
-    else fd.append('originalPrice', '');   // clear it
+    fd.append('originalPrice',     orig || '');
+    fd.append('estimatedDelivery', document.getElementById('e-delivery').value.trim());
     editFiles.forEach(f => fd.append('images', f));
 
     const btn = document.querySelector('#edit-modal .btn-amber');

@@ -168,6 +168,13 @@
         <h1 class="p-name" id="p-name">—</h1>
         <div class="p-price" id="p-price">—</div>
         <div class="p-cod"><i class="fa-solid fa-check-circle"></i> Cash on Delivery</div>
+        <div id="p-delivery-wrap" style="display:none;
+          background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);
+          border-radius:8px;padding:10px 14px;margin-bottom:16px;
+          font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-truck-fast"></i>
+          <span>Estimated Delivery: <strong id="p-delivery-text"></strong></span>
+        </div>
         <div class="divider"></div>
         <p class="p-desc" id="p-desc">—</p>
 
@@ -261,6 +268,12 @@
 
     // Info
     document.getElementById('p-name').textContent = p.name;
+
+    // Estimated delivery
+    if (p.estimatedDelivery) {
+      document.getElementById('p-delivery-text').textContent = p.estimatedDelivery;
+      document.getElementById('p-delivery-wrap').style.display = 'flex';
+    }
     document.getElementById('p-desc').textContent = p.description;
 
     // Price with optional discount
