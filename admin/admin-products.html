@@ -201,6 +201,21 @@
               </div>
             </div>
 
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-input" id="prod-category">
+                  <option value="Clothes">Clothes</option>
+                  <option value="Gifts">Gifts</option>
+                  <option value="Uncategorized">Uncategorized</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sort Order <span style="color:var(--text-muted);font-weight:400;">(lower = first)</span></label>
+                <input type="number" class="form-input" id="prod-sort" placeholder="e.g. 1" min="0" value="0"/>
+              </div>
+            </div>
+
             <div class="form-group">
               <label class="form-label">Available Sizes</label>
               <div class="sizes-row">
@@ -316,6 +331,21 @@
       <label class="form-label">Estimated Delivery</label>
       <input type="text" class="form-input" id="e-delivery"
         placeholder="e.g. 2-3 days · by Tomorrow · 5-7 business days"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="e-category">
+          <option value="Clothes">Clothes</option>
+          <option value="Gifts">Gifts</option>
+          <option value="Uncategorized">Uncategorized</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order <span style="color:var(--text-muted);font-weight:400;">(lower = first)</span></label>
+        <input type="number" class="form-input" id="e-sort" min="0"/>
+      </div>
     </div>
 
     <div class="form-group">
@@ -436,6 +466,8 @@
     formData.append('sizes', JSON.stringify(sizes));
     if (originalPrice) formData.append('originalPrice', originalPrice);
     formData.append('estimatedDelivery', document.getElementById('prod-delivery').value.trim());
+    formData.append('category',          document.getElementById('prod-category').value);
+    formData.append('sortOrder',         document.getElementById('prod-sort').value || '0');
 
     // ✅ FIX: Now append all image files (formData exists at this point)
     selectedFiles.forEach(file => formData.append('images', file));
@@ -469,7 +501,9 @@
     document.getElementById('prod-desc').value  = '';
     document.getElementById('prod-stock').value = '';
     document.getElementById('prod-original-price').value = '';
-    document.getElementById('prod-delivery').value = '';
+    document.getElementById('prod-delivery').value  = '';
+    document.getElementById('prod-sort').value      = '0';
+    document.getElementById('prod-category').value  = 'Clothes';
     // ✅ FIX: correct ID is prod-images not prod-image
     document.getElementById('prod-images').value = '';
     selectedFiles = [];
@@ -577,7 +611,9 @@
     document.getElementById('e-original-price').value = (p.originalPrice && p.originalPrice > 0) ? p.originalPrice : '';
     document.getElementById('e-desc').value           = p.description || '';
     document.getElementById('e-stock').value            = p.stock ?? '';
-    document.getElementById('e-delivery').value          = p.estimatedDelivery || '';
+    document.getElementById('e-delivery').value   = p.estimatedDelivery || '';
+    document.getElementById('e-category').value   = p.category || 'Clothes';
+    document.getElementById('e-sort').value        = p.sortOrder ?? 0;
 
     // Set sizes
     const allSizes = ['XS','S','M','L','XL','XXL','Free Size'];
@@ -648,6 +684,8 @@
     fd.append('sizes',       JSON.stringify(sizes));
     fd.append('originalPrice',     orig || '');
     fd.append('estimatedDelivery', document.getElementById('e-delivery').value.trim());
+    fd.append('category',          document.getElementById('e-category').value);
+    fd.append('sortOrder',         document.getElementById('e-sort').value || '0');
     editFiles.forEach(f => fd.append('images', f));
 
     const btn = document.querySelector('#edit-modal .btn-amber');

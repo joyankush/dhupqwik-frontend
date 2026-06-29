@@ -61,6 +61,7 @@ function addToCart(product, size, quantity = 1) {
       name:      product.name,
       price:     product.price,
       image:     img,
+      stock:     product.stock ?? 999,
       size,
       quantity
     });

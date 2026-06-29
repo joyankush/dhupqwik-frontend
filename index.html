@@ -66,9 +66,7 @@
       color: rgba(255,255,255,0.75);
       line-height: 1.5; margin-bottom: 18px;
       max-width: 340px;
-    } 
-
-    
+    }
     .hero-btn {
       display: inline-block;
       padding: 10px 22px;
@@ -120,6 +118,26 @@
     .hero-static {
       border-radius: 20px; overflow: hidden; margin-top: 16px;
     }
+    /* ── Filter & Sort Bar ──────────────────────────────────── */
+    .filter-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cat-tab {
+      padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid var(--border); color: var(--text-soft);
+      background: transparent; cursor: pointer; transition: var(--t);
+    }
+    .cat-tab:hover { border-color: var(--teal); color: var(--teal); }
+    .cat-tab.active { background: var(--teal); border-color: var(--teal); color: var(--bg); }
+    .sort-select {
+      padding: 6px 12px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border); background: var(--surface2);
+      color: var(--text); font-size: 12px; font-weight: 600;
+      cursor: pointer; outline: none;
+    }
+    .sort-select:focus { border-color: var(--teal); }
   </style>
 </head>
 <body>
@@ -139,14 +157,16 @@
 <div class="page-body">
 <div class="page-container-wide">
 
-  <!-- Hero Banner -->
-  <div class="hero-banner fade-up" style="margin-top:16px;">
-    <div class="hero-content">
-      <div class="hero-tag"><i class="fa-solid fa-truck"></i> Free Delivery · Dhupguri</div>
-      <h1 class="hero-title">Fresh Drops,<br/><span class="hl">Delivered Fast</span></h1>
-      <p class="hero-sub">Local clothing for every occasion. Pay cash or online — no card needed.</p>
-      <a href="#products" class="hero-btn">Shop Now →</a>
-    </div>
+  <!-- Hero Carousel -->
+  <div class="hero-carousel fade-up" id="hero-carousel">
+    <div class="hero-slides" id="hero-slides"></div>
+    <button class="hero-arrow prev" id="hero-prev" onclick="heroPrev()" style="display:none;">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="hero-arrow next" id="hero-next" onclick="heroNext()" style="display:none;">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="hero-dots" id="hero-dots"></div>
   </div>
 
   <!-- Search -->
@@ -158,9 +178,27 @@
 
   <!-- Products Section -->
   <div id="products">
-    <div class="section-header fade-up-2">
+    <div class="section-header fade-up-2" style="margin-bottom:12px;">
       <span class="section-title">All Products</span>
       <span class="section-link" id="product-count"></span>
+    </div>
+    <div class="filter-bar fade-up-2">
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="setCategory('all', this)">All</button>
+        <button class="cat-tab" onclick="setCategory('Clothes', this)">
+          <i class="fa-solid fa-shirt"></i> Clothes
+        </button>
+        <button class="cat-tab" onclick="setCategory('Gifts', this)">
+          <i class="fa-solid fa-gift"></i> Gifts
+        </button>
+      </div>
+      <select class="sort-select" id="sort-select" onchange="applyFilters()">
+        <option value="default">Default Order</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest First</option>
+        <option value="name-az">Name: A to Z</option>
+      </select>
     </div>
 
     <!-- Skeleton loading -->
@@ -187,9 +225,60 @@
 
 <!-- ── Footer ─────────────────────────────────────────── -->
 <footer class="site-footer">
-  <strong>Kartigo</strong> — Local Clothing Store · Cash on Delivery · Dhupguri
-<br/>
-<span class="credit">© 2026 Kartigo · Designed & Developed by Joyankush</span>
+  <div class="footer-inner">
+    <!-- Brand + About -->
+    <div>
+      <div class="footer-col-title">Kartigo</div>
+      <div class="footer-links">
+        <span style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+          Local clothing &amp; gifts store in Dhupguri. Fast delivery, cash on delivery available.
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div>
+      <div class="footer-col-title">Policies</div>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="refund-policy.html">Refund &amp; Returns</a>
+        <a href="shipping-policy.html">Shipping Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="contact.html">Contact Us</a>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <div class="footer-col-title">Contact</div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-phone"></i>
+        <a href="tel:+918250221552">+91 82502 21552</a>
+      </div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-envelope"></i>
+        <a href="mailto:kartigo@gmail.com">kartigo@gmail.com</a>
+      </div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Ghoshpara, Dhupguri,<br/>West Bengal</span>
+      </div>
+      <div class="footer-contact-item" style="margin-top:10px;">
+        <a href="https://wa.me/918250221552" target="_blank"
+          style="display:inline-flex;align-items:center;gap:7px;
+          background:#25D366;color:#fff;padding:7px 14px;
+          border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;">
+          <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-brand">Karti<span>go</span></div>
+    <div class="footer-copy">© 2026 Kartigo · Ghoshpara, Dhupguri</div>
+    <div class="footer-credit">Designed &amp; Developed by <a href="#">Joyankush</a></div>
+  </div>
 </footer>
 
 <!-- ── Bottom Nav ─────────────────────────────────────── -->
@@ -372,12 +461,44 @@
     }).join('');
   }
 
+  let activeCategory = 'all';
+
+  function setCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const query   = document.getElementById('search-input').value.toLowerCase().trim();
+    const sortVal = document.getElementById('sort-select').value;
+    let filtered  = [...allProducts];
+
+    // Category filter
+    if (activeCategory !== 'all') {
+      filtered = filtered.filter(p => p.category === activeCategory);
+    }
+
+    // Search filter
+    if (query) {
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(query) || p.description?.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort
+    if (sortVal === 'price-asc')  filtered.sort((a,b) => a.price - b.price);
+    if (sortVal === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+    if (sortVal === 'newest')     filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (sortVal === 'name-az')    filtered.sort((a,b) => a.name.localeCompare(b.name));
+    if (sortVal === 'default')    filtered.sort((a,b) => (a.sortOrder||0) - (b.sortOrder||0));
+
+    renderProducts(filtered);
+  }
+
   function filterProducts(q) {
-    const query = q.toLowerCase().trim();
-    if (!query) return renderProducts(allProducts);
-    renderProducts(allProducts.filter(p =>
-      p.name.toLowerCase().includes(query) || p.description?.toLowerCase().includes(query)
-    ));
+    applyFilters();
   }
 
   function goToProduct(id) {

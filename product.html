@@ -212,8 +212,60 @@
 </div>
 
 <footer class="site-footer">
-  <strong>Kartigo</strong> — Cash on Delivery
-<br/><span class="credit">© 2026 Kartigo · Designed & Developed by Joyankush</span>
+  <div class="footer-inner">
+    <!-- Brand + About -->
+    <div>
+      <div class="footer-col-title">Kartigo</div>
+      <div class="footer-links">
+        <span style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+          Local clothing &amp; gifts store in Dhupguri. Fast delivery, cash on delivery available.
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div>
+      <div class="footer-col-title">Policies</div>
+      <div class="footer-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="refund-policy.html">Refund &amp; Returns</a>
+        <a href="shipping-policy.html">Shipping Policy</a>
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="contact.html">Contact Us</a>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <div class="footer-col-title">Contact</div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-phone"></i>
+        <a href="tel:+918250221552">+91 82502 21552</a>
+      </div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-envelope"></i>
+        <a href="mailto:kartigo@gmail.com">kartigo@gmail.com</a>
+      </div>
+      <div class="footer-contact-item">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Ghoshpara, Dhupguri,<br/>West Bengal</span>
+      </div>
+      <div class="footer-contact-item" style="margin-top:10px;">
+        <a href="https://wa.me/918250221552" target="_blank"
+          style="display:inline-flex;align-items:center;gap:7px;
+          background:#25D366;color:#fff;padding:7px 14px;
+          border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;">
+          <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-brand">Karti<span>go</span></div>
+    <div class="footer-copy">© 2026 Kartigo · Ghoshpara, Dhupguri</div>
+    <div class="footer-credit">Designed &amp; Developed by <a href="#">Joyankush</a></div>
+  </div>
 </footer>
 
 
@@ -329,13 +381,17 @@
 
   function changeQty(d) {
     if (currentProduct && currentProduct.stock <= 0) return;
-    quantity = Math.max(1, Math.min(10, quantity + d));
+    const maxQty = currentProduct?.stock || 10;
+    const newQty = quantity + d;
+    if (newQty > maxQty) { showToast(`Only ${maxQty} in stock`, 'error'); return; }
+    quantity = Math.max(1, newQty);
     document.getElementById('qty-val').textContent = quantity;
   }
 
   function handleAddToCart() {
     if (!currentProduct) return;
     if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
+    if (quantity > currentProduct.stock) { showToast(`Only ${currentProduct.stock} in stock`, 'error'); return; }
     if (!selectedSize) { showToast('Please select a size', 'error'); return; }
     addToCart(currentProduct, selectedSize, quantity);
   }
