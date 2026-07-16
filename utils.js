@@ -49,10 +49,21 @@ function saveCart(cart) {
   updateCartCount();
 }
 function addToCart(product, size, quantity = 1) {
-  const cart = getCart();
-  const existing = cart.find(i => i.productId === product._id && i.size === size);
+  const cart      = getCart();
+  const stockCap  = product.stock ?? 999;
+  const existing  = cart.find(i => i.productId === product._id && i.size === size);
+  const already   = existing ? existing.quantity : 0;
+
+  if (already >= stockCap) {
+    showToast(`Only ${stockCap} in stock — you already have the max in your cart`, 'error');
+    return false;
+  }
+
+  const allowedToAdd = Math.min(quantity, stockCap - already);
+  const wasCapped     = allowedToAdd < quantity;
+
   if (existing) {
-    existing.quantity += quantity;
+    existing.quantity += allowedToAdd;
   } else {
     // Support both images[] array and legacy image field
     const img = product.images?.[0] || product.image || null;
@@ -61,13 +72,19 @@ function addToCart(product, size, quantity = 1) {
       name:      product.name,
       price:     product.price,
       image:     img,
-      stock:     product.stock ?? 999,
+      stock:     stockCap,
       size,
-      quantity
+      quantity: allowedToAdd
     });
   }
   saveCart(cart);
-  showToast(`${product.name} added to cart!`, 'success');
+
+  if (wasCapped) {
+    showToast(`Only ${stockCap} in stock — added the max available`, 'error');
+  } else {
+    showToast(`${product.name} added to cart!`, 'success');
+  }
+  return true;
 }
 function removeFromCart(productId, size) {
   saveCart(getCart().filter(i => !(i.productId === productId && i.size === size)));

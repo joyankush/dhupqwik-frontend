@@ -445,8 +445,8 @@ textarea.form-input{resize:vertical;min-height:88px;}
   text-align:center;
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-.toast.success{background:rgba(16,185,129,0.18);border-color:rgba(16,185,129,0.35);color:#34d399;}
-.toast.error{background:rgba(244,63,94,0.18);border-color:rgba(244,63,94,0.35);color:#fb7185;}
+.toast.success{background:#0d2b20;border:1px solid rgba(16,185,129,0.5);color:#ffffff;}
+.toast.error{background:#3a1015;border:1px solid rgba(244,63,94,0.5);color:#ffffff;}
 
 /* ── Modal (bottom sheet on mobile) ─────────────────────── */
 .modal-overlay{

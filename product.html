@@ -389,18 +389,19 @@
   }
 
   function handleAddToCart() {
-    if (!currentProduct) return;
-    if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
-    if (quantity > currentProduct.stock) { showToast(`Only ${currentProduct.stock} in stock`, 'error'); return; }
-    if (!selectedSize) { showToast('Please select a size', 'error'); return; }
-    addToCart(currentProduct, selectedSize, quantity);
+    if (!currentProduct) return false;
+    if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return false; }
+    if (!selectedSize) { showToast('Please select a size', 'error'); return false; }
+    return addToCart(currentProduct, selectedSize, quantity);
   }
 
   function handleBuyNow() {
     if (!currentProduct) return;
     if (currentProduct.stock <= 0) { showToast('This item is out of stock', 'error'); return; }
-    handleAddToCart();
-    setTimeout(() => window.location.href = 'cart.html', 400);
+    const added = handleAddToCart();
+    if (added) {
+      setTimeout(() => window.location.href = 'cart.html', 400);
+    }
   }
 
   function showError() {
