@@ -14,11 +14,12 @@
       border-radius: 20px;
       overflow: hidden;
       margin-top: 16px;
-      aspect-ratio: 16/7;
+      margin-bottom: 20px;
+      aspect-ratio: 16/9;
       background: #0d2a2a;
     }
-    @media(max-width: 480px) { .hero-carousel { aspect-ratio: 4/3; border-radius: 14px; } }
-    @media(min-width: 1024px) { .hero-carousel { aspect-ratio: 21/7; } }
+    @media(max-width: 768px) { .hero-carousel { aspect-ratio: 16/9; border-radius: 14px; } }
+    @media(min-width: 1024px) { .hero-carousel { aspect-ratio: 16/9; } }
 
     .hero-slides { display: flex; height: 100%; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
 
@@ -34,7 +35,7 @@
     .hero-slide-bg {
       position: absolute; inset: 0;
       background-size: cover;
-      background-position: center center;
+      background-position: center 25%;
       background-repeat: no-repeat;
       transition: transform 6s ease;
     }
@@ -104,7 +105,7 @@
     .hero-arrow.next { right: 12px; }
 
     /* Mobile responsive hero content */
-    @media(max-width: 480px) {
+    @media(max-width: 768px) {
       .hero-slide { padding: 20px 18px; }
       .hero-tag { font-size: 9px; padding: 3px 10px; margin-bottom: 8px; }
       .hero-title { font-size: 20px !important; margin-bottom: 6px; }
@@ -313,7 +314,7 @@
     // Build full background style including image + fallback color
     let bgStyle = `background-color:${b.bgColor || '#0d2a2a'};`;
     if (b.bgImage) {
-      bgStyle += `background-image:url('${b.bgImage}');background-size:cover;background-position:center center;background-repeat:no-repeat;`;
+      bgStyle += `background-image:url('${b.bgImage}');background-size:cover;background-position:center 25%;background-repeat:no-repeat;`;
     }
     const tag = b.tag ? `<div class="hero-tag"><i class="fa-solid fa-truck"></i> ${b.tag}</div>` : '';
     const btn = b.btnText ? `<span class="hero-btn" style="background:${b.accentColor||'#10b981'};color:#000;">${b.btnText}</span>` : '';
