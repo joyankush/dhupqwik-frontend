@@ -205,7 +205,7 @@
           <!-- Live preview -->
           <div class="banner-preview" id="b-preview">
             <div class="banner-preview-bg" id="b-preview-bg" style="background:#0d2a2a"></div>
-            <div class="banner-preview-overlay"></div>
+            <div class="banner-preview-overlay" id="b-preview-overlay"></div>
             <div class="banner-preview-content">
               <div class="banner-preview-tag" id="b-preview-tag">FREE DELIVERY · DHUPGURI</div>
               <div class="banner-preview-title" id="b-preview-title">
@@ -264,6 +264,14 @@
               <p>Click to upload image</p>
               <img id="img-preview" alt="preview"/>
             </div>
+          </div>
+
+          <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+            <input type="checkbox" id="f-overlay" checked
+              onchange="document.getElementById('b-preview-overlay').style.display = this.checked ? 'block' : 'none'"
+              style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;"/>
+            <label class="form-label" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;cursor:pointer;"
+              for="f-overlay">Show dark overlay (turn off to show image exactly as uploaded)</label>
           </div>
 
           <!-- Link -->
@@ -358,6 +366,11 @@
         <i class="fa-solid fa-image"></i>
         <p>Click to replace image</p>
       </div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="e-overlay" style="width:16px;height:16px;accent-color:var(--amber);cursor:pointer;"/>
+      <label class="form-label" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;cursor:pointer;"
+        for="e-overlay">Show dark overlay (turn off to show image exactly as uploaded)</label>
     </div>
     <div class="form-group">
       <label class="form-label">On Click</label>
@@ -470,6 +483,7 @@
     fd.append('productId',  document.getElementById('f-productid').value || '');
     fd.append('customUrl',  document.getElementById('f-customurl').value || '');
     fd.append('order',      document.getElementById('f-order').value);
+    fd.append('showOverlay',document.getElementById('f-overlay').checked);
 
     const imgFile = document.getElementById('f-bgimage').files[0];
     if (imgFile) fd.append('bgImage', imgFile);
@@ -488,6 +502,8 @@
         document.getElementById('f-tag').value      = '';
         document.getElementById('f-bgimage').value  = '';
         document.getElementById('img-preview').style.display = 'none';
+        document.getElementById('f-overlay').checked = true;
+        document.getElementById('b-preview-overlay').style.display = 'block';
         loadBanners();
       } else {
         showToast(data.message || 'Failed to create banner', 'error');
@@ -583,6 +599,7 @@
       document.getElementById('e-customurl').value = b.customUrl || '';
       document.getElementById('e-order').value     = b.order || 0;
       document.getElementById('e-active').value    = String(b.isActive);
+      document.getElementById('e-overlay').checked = b.showOverlay !== false;
       toggleEditLinkFields();
       document.getElementById('edit-modal').classList.add('open');
     } catch {
@@ -609,6 +626,7 @@
     fd.append('customUrl',   document.getElementById('e-customurl').value || '');
     fd.append('order',       document.getElementById('e-order').value);
     fd.append('isActive',    document.getElementById('e-active').value);
+    fd.append('showOverlay', document.getElementById('e-overlay').checked);
 
     const imgFile = document.getElementById('e-bgimage').files[0];
     if (imgFile) fd.append('bgImage', imgFile);

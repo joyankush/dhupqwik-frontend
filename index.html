@@ -318,10 +318,11 @@
     }
     const tag = b.tag ? `<div class="hero-tag"><i class="fa-solid fa-truck"></i> ${b.tag}</div>` : '';
     const btn = b.btnText ? `<span class="hero-btn" style="background:${b.accentColor||'#10b981'};color:#000;">${b.btnText}</span>` : '';
+    const overlay = b.showOverlay === false ? '' : '<div class="hero-slide-overlay"></div>';
     return `
       <div class="hero-slide" onclick="handleBannerClick('${b.linkType}','${b.productId || ''}','${b.customUrl || ''}')">
         <div class="hero-slide-bg" style="${bgStyle}"></div>
-        <div class="hero-slide-overlay"></div>
+        ${overlay}
         <div class="hero-slide-content">
           ${tag}
           <h1 class="hero-title" style="color:${b.textColor||'#fff'}">
