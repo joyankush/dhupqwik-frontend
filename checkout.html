@@ -182,6 +182,20 @@
         <div class="checkout-card">
           <div class="checkout-card-title"><i class="fa-solid fa-bag-shopping"></i> Your Order</div>
           <div id="order-items"></div>
+
+          <div style="display:flex;gap:8px;margin:14px 0 4px;">
+            <input type="text" class="form-input" id="coupon-input" placeholder="Coupon code"
+              style="text-transform:uppercase;" maxlength="20"/>
+            <button class="btn btn-outline" id="coupon-btn" onclick="applyCoupon()"
+              style="flex-shrink:0;padding:0 18px;">Apply</button>
+          </div>
+          <div id="coupon-msg" style="font-size:12px;margin-bottom:10px;min-height:16px;"></div>
+
+          <div class="sum-item" id="discount-row" style="display:none;">
+            <span>Discount <span id="discount-code" style="color:var(--teal);font-weight:600;"></span></span>
+            <span id="discount-amount" style="color:var(--green);font-weight:600;"></span>
+          </div>
+
           <div class="sum-total">
             <span>Total to Pay</span>
             <span id="order-total"></span>
@@ -269,8 +283,9 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="utils.js"></script>
 <script>
-  let storeSettings = null;
+  let storeSettings   = null;
   let selectedPayment = null;
+  let appliedCoupon   = null; // { code, discount, finalTotal } once applied
 
   document.addEventListener('DOMContentLoaded', async () => {
     const phone = getCustomerPhone();
@@ -337,7 +352,6 @@
   }
 
   function renderSummary(cart) {
-    const total = getCartTotal();
     document.getElementById('order-items').innerHTML = cart.map(item => `
       <div class="sum-item">
         <div>
@@ -347,7 +361,82 @@
         <div class="sum-item-price">${(item.price*item.quantity).toLocaleString('en-IN')}</div>
       </div>
     `).join('');
-    document.getElementById('order-total').textContent = total.toLocaleString('en-IN');
+    renderTotals();
+  }
+
+  function renderTotals() {
+    const total       = getCartTotal();
+    const discountRow = document.getElementById('discount-row');
+
+    if (appliedCoupon) {
+      discountRow.style.display = 'flex';
+      document.getElementById('discount-code').textContent   = `(${appliedCoupon.code})`;
+      document.getElementById('discount-amount').textContent = `-₹${appliedCoupon.discount.toLocaleString('en-IN')}`;
+      document.getElementById('order-total').textContent     = appliedCoupon.finalTotal.toLocaleString('en-IN');
+    } else {
+      discountRow.style.display = 'none';
+      document.getElementById('order-total').textContent = total.toLocaleString('en-IN');
+    }
+  }
+
+  async function applyCoupon() {
+    const input = document.getElementById('coupon-input');
+    const msgEl = document.getElementById('coupon-msg');
+    const code  = input.value.trim().toUpperCase();
+
+    if (!code) {
+      msgEl.textContent = 'Enter a coupon code';
+      msgEl.style.color = 'var(--red)';
+      return;
+    }
+
+    const btn = document.getElementById('coupon-btn');
+    btn.disabled = true;
+    btn.textContent = 'Checking...';
+
+    try {
+      const res  = await fetch(`${API_BASE}/coupons/apply`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ code, cartTotal: getCartTotal() })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        appliedCoupon = { code: data.code, discount: data.discount, finalTotal: data.finalTotal };
+        msgEl.textContent = data.message;
+        msgEl.style.color = 'var(--green)';
+        input.disabled    = true;
+        btn.disabled       = false;
+        btn.textContent    = 'Remove';
+        btn.onclick        = removeCoupon;
+      } else {
+        appliedCoupon      = null;
+        msgEl.textContent  = data.message || 'Invalid coupon';
+        msgEl.style.color  = 'var(--red)';
+        btn.disabled       = false;
+        btn.textContent    = 'Apply';
+      }
+    } catch {
+      msgEl.textContent = 'Cannot connect to server';
+      msgEl.style.color = 'var(--red)';
+      btn.disabled       = false;
+      btn.textContent    = 'Apply';
+    }
+
+    renderTotals();
+  }
+
+  function removeCoupon() {
+    appliedCoupon = null;
+    const input   = document.getElementById('coupon-input');
+    input.disabled = false;
+    input.value     = '';
+    const btn = document.getElementById('coupon-btn');
+    btn.textContent = 'Apply';
+    btn.onclick      = applyCoupon;
+    document.getElementById('coupon-msg').textContent = '';
+    renderTotals();
   }
 
   function validate() {
@@ -382,7 +471,7 @@
         body: JSON.stringify({
           customerName: name, phone, address, orderNote: note,
           items: cart.map(i => ({ productId: i.productId, quantity: i.quantity, size: i.size })),
-          totalPrice: getCartTotal()
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined
         })
       });
       const data = await res.json();
@@ -412,7 +501,10 @@
     try {
       const res = await fetch(`${API_BASE}/payment/create-order`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: total })
+        body: JSON.stringify({
+          items: cart.map(i => ({ productId: i.productId, quantity: i.quantity })),
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined
+        })
       });
       const data = await res.json();
       if (!data.razorpayOrderId) { showToast('Payment setup failed. Try again.', 'error'); btn.disabled=false; btn.textContent='Pay Now →'; return; }
@@ -431,8 +523,7 @@
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               customerName: name, phone, address, orderNote: note,
-              items: cart.map(i => ({ productId:i.productId, name:i.name, price:i.price, quantity:i.quantity, size:i.size, image:i.image||'' })),
-              totalPrice: total
+              items: cart.map(i => ({ productId:i.productId, name:i.name, price:i.price, quantity:i.quantity, size:i.size, image:i.image||'' }))
             })
           });
           const vData = await vRes.json();
